@@ -328,4 +328,61 @@ public class UserServiceImpl implements IUserService {
         return ServerResponse.createBySuccess("密码修改失败");
     }
 
+    /**
+     * 修改用户信息
+     *
+     * @param user 用户信息
+     * @return
+     */
+    @Override
+    public ServerResponse updateInformation(User user) {
+        // 校验手机号是否为空
+        String phone = user.getPhone();
+        if (StringUtils.isEmpty(phone)) {
+            return ServerResponse.createByErrorMessage("手机号码不允许为空");
+        }
+
+        // 校验邮箱是否为空
+        String email = user.getEmail();
+        if (StringUtils.isEmpty(email)) {
+            return ServerResponse.createByErrorMessage("邮箱不允许为空");
+        }
+
+        // 校验手机号格式
+        String phoneRegex = "^1([38]\\d|5[0-35-9]|7[3678])\\d{8}$";
+        if (!Pattern.matches(phoneRegex, phone)) {
+            return ServerResponse.createByErrorMessage("手机号格式不正确");
+        }
+
+        // 校验邮箱格式
+        String emailRegex = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$";
+        if (!Pattern.matches(emailRegex, email)) {
+            return ServerResponse.createByErrorMessage("邮箱格式不正确");
+        }
+
+        // 检测邮箱是否被注册，除去自己本身的
+        if (StringUtils.isNotBlank(email)) {
+            int resultCount = userMapper.checkEmailByUserId(user.getId(), user.getEmail());
+            if (resultCount < 0) {
+                return ServerResponse.createByErrorMessage("邮箱已经存在");
+            }
+        }
+
+        // 修改信息
+        User updateUser = new User();
+        updateUser.setId(user.getId());
+        updateUser.setEmail(user.getEmail());
+        updateUser.setPhone(user.getPhone());
+        updateUser.setQuestion(user.getQuestion());
+        updateUser.setAnswer(user.getAnswer());
+        int updateCount = userMapper.updateByPrimaryKeySelective(updateUser);
+        if (updateCount > 0) {
+            updateUser.setUsername(user.getUsername());
+            return ServerResponse.createBySuccess("更新个人信息成功", updateUser);
+        }
+
+        return ServerResponse.createByErrorMessage("更新个人信息失败");
+    }
+
+
 }

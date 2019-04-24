@@ -147,4 +147,29 @@ public class UserController {
         return userService.resetPassword(oldPassword, newPassword, user);
     }
 
+    /**
+     * 更新用户个人信息
+     *
+     * @param session
+     * @param user
+     * @return
+     */
+    @RequestMapping(value = "update_information.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<User> updateInformation(HttpSession session, User user) {
+        User currentUser = (User) session.getAttribute(Const.CURRENT_USER);
+        if (currentUser == null) {
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        user.setId(currentUser.getId());  // 防止越权，从登录的session中获取
+        user.setUsername(currentUser.getUsername());  // 因为username不能被更新
+
+        ServerResponse<User> response = userService.updateInformation(user);
+        if (response.isSuccess()) {
+            session.setAttribute(Const.CURRENT_USER, response.getData());
+        }
+
+        return response;
+    }
+
 }
