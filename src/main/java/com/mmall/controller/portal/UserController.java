@@ -44,4 +44,19 @@ public class UserController {
         return response;
     }
 
+    /**
+     * 用户登出
+     *
+     * @param session
+     * @return
+     */
+    @RequestMapping(value = "logout.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<User> logout(HttpSession session) {
+        // 移除用户session
+        session.removeAttribute(Const.CURRENT_USER);
+
+        return ServerResponse.createBySuccess();
+    }
+
 }
