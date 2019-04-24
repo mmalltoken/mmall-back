@@ -3,8 +3,9 @@ package com.mmall.util;
 import java.security.MessageDigest;
 
 /**
- * MD5加密
- * Created by Administrator on 2017/12/3 0003.
+ * 描述：MD5加密工具
+ * 作者：NearJC
+ * 时间：2019.4.24
  */
 public class MD5Util {
 

@@ -84,4 +84,44 @@ public class UserController {
         return userService.checkValid(parameter, type);
     }
 
+    /**
+     * 获取提示问题
+     *
+     * @param username
+     * @return
+     */
+    @RequestMapping(value = "forget_get_question.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> forgetGetQuestion(String username) {
+        return userService.getQuestion(username);
+    }
+
+    /**
+     * 检测答案与提示问题是否匹配
+     *
+     * @param username
+     * @param question
+     * @param answer
+     * @return
+     */
+    @RequestMapping(value = "forget_check_answer.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> forgetCheckAnswer(String username, String question, String answer) {
+        return userService.checkAnswer(username, question, answer);
+    }
+
+    /**
+     * 未登录状态下重置密码
+     *
+     * @param forgetToken token值
+     * @param username
+     * @param newPassword
+     * @return
+     */
+    @RequestMapping(value = "forget_reset_password", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse forgetResetPassword(String forgetToken, String username, String newPassword) {
+        return userService.forgetResetPassword(forgetToken, username, newPassword);
+    }
+
 }

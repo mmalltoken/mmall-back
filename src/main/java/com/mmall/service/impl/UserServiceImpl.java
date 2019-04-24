@@ -6,10 +6,12 @@ import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import com.mmall.util.MD5Util;
+import com.mmall.util.TokenCache;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -162,5 +164,130 @@ public class UserServiceImpl implements IUserService {
         }
 
         return ServerResponse.createByErrorMessage("检测类型不存在");
+    }
+
+    /**
+     * 根据用户名获取提示问题
+     *
+     * @param username
+     * @return
+     */
+    @Override
+    public ServerResponse<String> getQuestion(String username) {
+        // 检测用户名是否为空
+        if (StringUtils.isEmpty(username)) {
+            return ServerResponse.createByErrorMessage("用户名不允许为空");
+        }
+
+        // 检测用户是否存在
+        ServerResponse checkNameResponse = checkValid(username, Const.USERNAME);
+        if (checkNameResponse.isSuccess()) {
+            return ServerResponse.createByErrorMessage("用户不存在");
+        }
+
+        // 获取提示问题
+        String question = userMapper.selectQuestionByUsername(username);
+        if (StringUtils.isNotBlank(question)) {
+            return ServerResponse.createBySuccess(question);
+        }
+
+        return ServerResponse.createByErrorMessage("用户未设置提示问题，请联系管理员修改密码");
+    }
+
+    /**
+     * 检测答案与提示问题是否匹配
+     *
+     * @param username
+     * @param question
+     * @param answer
+     * @return
+     */
+    @Override
+    public ServerResponse<String> checkAnswer(String username, String question, String answer) {
+        // 检测用户名是否为空
+        if (StringUtils.isEmpty(username)) {
+            return ServerResponse.createByErrorMessage("用户名不允许为空");
+        }
+
+        // 检测提示问题是否为空
+        if (StringUtils.isEmpty(question)) {
+            return ServerResponse.createByErrorMessage("提示问题不允许为空");
+        }
+
+        // 检测答案是否为空
+        if (StringUtils.isEmpty(answer)) {
+            return ServerResponse.createByErrorMessage("答案不允许为空");
+        }
+
+        // 检测用户是否存在
+        ServerResponse checkNameResponse = checkValid(username, Const.USERNAME);
+        if (checkNameResponse.isSuccess()) {
+            return ServerResponse.createByErrorMessage("用户不存在");
+        }
+
+        // 检测答案与提示问题是否匹配
+        int resultCount = userMapper.checkAnswer(username, question, answer);
+        if (resultCount > 0) {
+            // 生成Token，修改密码时需要带回来
+            String forgetToken = UUID.randomUUID().toString();
+            TokenCache.set(TokenCache.TOKEN_PREFIX + username, forgetToken);
+
+            return ServerResponse.createBySuccess(forgetToken);
+        }
+
+        return ServerResponse.createByErrorMessage("答案与提示问题不匹配");
+    }
+
+    /**
+     * 未登录状态下重置密码
+     *
+     * @param forgetToken token值
+     * @param username
+     * @param newPassword
+     * @return
+     */
+    @Override
+    public ServerResponse forgetResetPassword(String forgetToken, String username, String newPassword) {
+
+        // 检测用户名是否为空
+        if (StringUtils.isBlank(username)) {
+            return ServerResponse.createByErrorMessage("用户名不允许为空");
+        }
+
+        // 检测token值是否为空
+        if (StringUtils.isBlank(forgetToken)) {
+            return ServerResponse.createByErrorMessage("参数错误，token需要传递");
+        }
+
+        // 检测密码是否为空
+        if (StringUtils.isBlank(newPassword)) {
+            return ServerResponse.createByErrorMessage("密码不允许为空");
+        }
+
+        // 检测用户是否存在
+        ServerResponse checkNameResponse = checkValid(username, Const.USERNAME);
+        if (checkNameResponse.isSuccess()) {
+            return ServerResponse.createByErrorMessage("用户不存在");
+        }
+
+        // 获取本地保存的token值
+        String localToken = TokenCache.get(TokenCache.TOKEN_PREFIX + username);
+        if (StringUtils.isBlank(localToken)) {
+            return ServerResponse.createByErrorMessage("token无效或者过期");
+        }
+
+        // 判断本地token与用户传递的token是否一致
+        if (StringUtils.equals(forgetToken, localToken)) {
+            // 修改密码
+            newPassword = MD5Util.MD5EncodeUtf8(newPassword);
+            int resultCount = userMapper.updatePasswordByUsername(username, newPassword);
+            if (resultCount > 0) {
+                return ServerResponse.createBySuccess("修改密码成功");
+            }
+        } else {
+            return ServerResponse.createByErrorMessage("token错误，请重新获取重置密码的token");
+        }
+
+        return ServerResponse.createByErrorMessage("修改密码失败");
     }
 }
