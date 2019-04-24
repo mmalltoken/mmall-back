@@ -172,4 +172,21 @@ public class UserController {
         return response;
     }
 
+    /**
+     * 获取个人用户信息
+     *
+     * @param session
+     * @return
+     */
+    @RequestMapping(value = "get_information.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<User> getInformation(HttpSession session) {
+        User currentUser = (User) session.getAttribute(Const.CURRENT_USER);
+        if (currentUser == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return userService.getInformation(currentUser.getId());
+    }
+
 }

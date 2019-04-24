@@ -20,4 +20,6 @@ public interface IUserService {
     ServerResponse resetPassword(String oldPassword, String newPassword, User user);
 
     ServerResponse updateInformation(User user);
+
+    ServerResponse<User> getInformation(Integer userId);
 }
