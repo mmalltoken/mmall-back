@@ -50,7 +50,7 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createByErrorMessage("用户名不存在");
         }
         // 登录密码MD5加密
-        password = MD5Util.MD5EncodeUtf8(password);
+        password = MD5Util.MD5Encode(password);
 
         // 验证用户名和密码
         User user = userMapper.selectLogin(username, password);
@@ -118,7 +118,7 @@ public class UserServiceImpl implements IUserService {
         user.setRole(Const.Role.ROLE_CUSTOMER);
 
         // MD5加密
-        user.setPassword(MD5Util.MD5EncodeUtf8(password));
+        user.setPassword(MD5Util.MD5Encode(password));
 
         // 添加用户信息
         int resultCount = userMapper.insert(user);
@@ -279,7 +279,7 @@ public class UserServiceImpl implements IUserService {
         // 判断本地token与用户传递的token是否一致
         if (StringUtils.equals(forgetToken, localToken)) {
             // 修改密码
-            newPassword = MD5Util.MD5EncodeUtf8(newPassword);
+            newPassword = MD5Util.MD5Encode(newPassword);
             int resultCount = userMapper.updatePasswordByUsername(username, newPassword);
             if (resultCount > 0) {
                 return ServerResponse.createBySuccess("修改密码成功");
@@ -290,4 +290,42 @@ public class UserServiceImpl implements IUserService {
 
         return ServerResponse.createByErrorMessage("修改密码失败");
     }
+
+    /**
+     * 重置密码
+     *
+     * @param oldPassword
+     * @param newPassword
+     * @param user
+     * @return
+     */
+    @Override
+    public ServerResponse resetPassword(String oldPassword, String newPassword, User user) {
+
+        // 判断旧密码是否为空
+        if (StringUtils.isBlank(oldPassword)) {
+            return ServerResponse.createByErrorMessage("旧密码不允许为空");
+        }
+
+        // 判断新密码是否为空
+        if (StringUtils.isBlank(newPassword)) {
+            return ServerResponse.createByErrorMessage("新密码不允许为空");
+        }
+
+        // 判断旧密码是否正确
+        int resultCount = userMapper.checkPassword(MD5Util.MD5Encode(oldPassword), user.getId());
+        if (resultCount == 0) {
+            return ServerResponse.createByErrorMessage("旧密码错误");
+        }
+
+        // 修改密码
+        user.setPassword(MD5Util.MD5Encode(newPassword));
+        int updateCount = userMapper.updateByPrimaryKeySelective(user);
+        if (updateCount > 0) {
+            return ServerResponse.createByErrorMessage("密码修改成功");
+        }
+
+        return ServerResponse.createBySuccess("密码修改失败");
+    }
+
 }

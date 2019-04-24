@@ -1,6 +1,7 @@
 package com.mmall.controller.portal;
 
 import com.mmall.common.Const;
+import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
@@ -13,8 +14,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpSession;
 
 /**
- * 前台-用户模块
- * Created by Administrator on 2017/12/3 0003.
+ * 描述：前台-用户模块
+ * 作者：NearJC
+ * 时间：2019.4.25
  */
 @Controller
 @RequestMapping("/user/")
@@ -122,6 +124,27 @@ public class UserController {
     @ResponseBody
     public ServerResponse forgetResetPassword(String forgetToken, String username, String newPassword) {
         return userService.forgetResetPassword(forgetToken, username, newPassword);
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param oldPassword
+     * @param newPassword
+     * @param session
+     * @return
+     */
+    @RequestMapping(value = "reset_password.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse resetPassword(String oldPassword, String newPassword, HttpSession session) {
+
+        // 获取session中用户信息
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return userService.resetPassword(oldPassword, newPassword, user);
     }
 
 }

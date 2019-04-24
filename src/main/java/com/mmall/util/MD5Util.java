@@ -33,24 +33,24 @@ public class MD5Util {
      * 返回大写MD5
      *
      * @param origin
-     * @param charsetname
+     * @param charsetName
      * @return
      */
-    private static String MD5Encode(String origin, String charsetname) {
+    private static String MD5Encode(String origin, String charsetName) {
         String resultString = null;
         try {
             resultString = new String(origin);
             MessageDigest md = MessageDigest.getInstance("MD5");
-            if (charsetname == null || "".equals(charsetname))
+            if (charsetName == null || "".equals(charsetName))
                 resultString = byteArrayToHexString(md.digest(resultString.getBytes()));
             else
-                resultString = byteArrayToHexString(md.digest(resultString.getBytes(charsetname)));
+                resultString = byteArrayToHexString(md.digest(resultString.getBytes(charsetName)));
         } catch (Exception exception) {
         }
         return resultString.toUpperCase();
     }
 
-    public static String MD5EncodeUtf8(String origin) {
+    public static String MD5Encode(String origin) {
         return MD5Encode(origin, "utf-8");
     }
 

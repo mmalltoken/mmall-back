@@ -1,8 +1,9 @@
 package com.mmall.common;
 
 /**
- * 全局常量封装类
- * Created by Administrator on 2017/12/3 0003.
+ * 描述：全局常量封装类
+ * 作者：NearJC
+ * 时间：2019.4.25
  */
 public class Const {
 
