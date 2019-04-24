@@ -1,5 +1,6 @@
 package com.mmall.service.impl;
 
+import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
@@ -9,12 +10,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.regex.Pattern;
+
 /**
  * 描述：用户模块业务实现类
  * 作者：NearJC
  * 时间：2019.4.24
  */
-@Service("iUserService")
+@Service("userService")
 public class UserServiceImpl implements IUserService {
 
     @Autowired
@@ -29,6 +32,15 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public ServerResponse<User> login(String username, String password) {
+        // 判断用户名是否为空
+        if (StringUtils.isEmpty(username)) {
+            return ServerResponse.createByErrorMessage("用户名不允许为空");
+        }
+
+        // 判断密码是否为空
+        if (StringUtils.isEmpty(password)) {
+            return ServerResponse.createByErrorMessage("密码不允许为空");
+        }
 
         // 校验用户名是否存在
         int resultCount = userMapper.checkUsername(username);
@@ -47,5 +59,108 @@ public class UserServiceImpl implements IUserService {
         // 处理返回的密码为空
         user.setPassword(StringUtils.EMPTY);
         return ServerResponse.createBySuccess("登录成功", user);
+    }
+
+    // 用户注册
+    @Override
+    public ServerResponse<String> register(User user) {
+        // 校验用户名是否为空
+        String username = user.getUsername();
+        if (StringUtils.isEmpty(username)) {
+            return ServerResponse.createByErrorMessage("用户名不允许为空");
+        }
+
+        // 校验密码是否为空
+        String password = user.getPassword();
+        if (StringUtils.isEmpty(password)) {
+            return ServerResponse.createByErrorMessage("密码不允许为空");
+        }
+
+        // 校验邮箱是否为空
+        String email = user.getEmail();
+        if (StringUtils.isEmpty(email)) {
+            return ServerResponse.createByErrorMessage("邮箱不允许为空");
+        }
+
+        // 校验手机号是否为空
+        String phone = user.getPhone();
+        if (StringUtils.isEmpty(phone)) {
+            return ServerResponse.createByErrorMessage("手机号码不允许为空");
+        }
+
+        // 校验邮箱格式
+        String emailRegex = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$";
+        if (!Pattern.matches(emailRegex, email)) {
+            return ServerResponse.createByErrorMessage("邮箱格式不正确");
+        }
+
+        // 校验手机号格式
+        String phoneRegex = "^1([38]\\d|5[0-35-9]|7[3678])\\d{8}$";
+        if (!Pattern.matches(phoneRegex, phone)) {
+            return ServerResponse.createByErrorMessage("手机号格式不正确");
+        }
+
+        // 校验用户名是否存在
+        ServerResponse validResponse = this.checkValid(username, Const.USERNAME);
+        if (!validResponse.isSuccess()) {
+            return validResponse;
+        }
+
+        // 校验email是否已注册
+        validResponse = this.checkValid(email, Const.EMAIL);
+        if (!validResponse.isSuccess()) {
+            return validResponse;
+        }
+
+        // 设置用户注册为普通用户
+        user.setRole(Const.Role.ROLE_CUSTOMER);
+
+        // MD5加密
+        user.setPassword(MD5Util.MD5EncodeUtf8(password));
+
+        // 添加用户信息
+        int resultCount = userMapper.insert(user);
+        if (resultCount == 0) {
+            return ServerResponse.createByErrorMessage("注册失败");
+        } else {
+            return ServerResponse.createBySuccessMessage("注册成功");
+        }
+    }
+
+    /**
+     * 用户名或邮箱验证
+     *
+     * @param parameter
+     * @param type
+     * @return
+     */
+    @Override
+    public ServerResponse<String> checkValid(String parameter, String type) {
+        // 参数非空校验
+        if (StringUtils.isEmpty(parameter) || StringUtils.isEmpty(type)) {
+            return ServerResponse.createByErrorMessage("参数错误");
+        }
+
+        // 校验用户名是否存在
+        if (Const.USERNAME.equals(type)) {
+            int resultCount = userMapper.checkUsername(parameter);
+            if (resultCount > 0) {
+                return ServerResponse.createByErrorMessage("用户名已存在");
+            }
+
+            return ServerResponse.createBySuccessMessage("检测成功");
+        }
+
+        // 校验邮箱是否存在
+        if (Const.EMAIL.equals(type)) {
+            int resultCount = userMapper.checkEmail(parameter);
+            if (resultCount > 0) {
+                return ServerResponse.createByErrorMessage("邮箱已被注册");
+            }
+
+            return ServerResponse.createBySuccessMessage("检测成功");
+        }
+
+        return ServerResponse.createByErrorMessage("检测类型不存在");
     }
 }

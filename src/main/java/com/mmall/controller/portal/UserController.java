@@ -59,4 +59,29 @@ public class UserController {
         return ServerResponse.createBySuccess();
     }
 
+    /**
+     * 用户注册
+     *
+     * @param user
+     * @return
+     */
+    @RequestMapping(value = "register.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> register(User user) {
+        return userService.register(user);
+    }
+
+    /**
+     * 用户名或邮箱验证
+     *
+     * @param parameter
+     * @param type
+     * @return
+     */
+    @RequestMapping(value = "check_valid.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> checkValid(String parameter, String type) {
+        return userService.checkValid(parameter, type);
+    }
+
 }
