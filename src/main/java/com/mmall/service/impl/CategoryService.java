@@ -4,9 +4,12 @@ import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
 import com.mmall.pojo.Category;
 import com.mmall.service.ICategoryService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service("categoryService")
 public class CategoryService implements ICategoryService {
@@ -63,5 +66,25 @@ public class CategoryService implements ICategoryService {
         }
 
         return ServerResponse.createByErrorMessage("修改品类名字失败");
+    }
+
+    /**
+     * 获取子节点信息
+     *
+     * @param parentId
+     * @return
+     */
+    @Override
+    public ServerResponse<List<Category>> getChildrenNode(Integer parentId) {
+        if(parentId == null){
+            return ServerResponse.createByErrorMessage("参数错误");
+        }
+
+        List<Category> categoryList = categoryMapper.selectChildrenByParentId(parentId);
+        if (CollectionUtils.isEmpty(categoryList)) {
+            return ServerResponse.createByErrorMessage("当前分类没有子分类");
+        }
+
+        return ServerResponse.createBySuccess(categoryList);
     }
 }

@@ -74,4 +74,29 @@ public class CategoryManagerController {
             return ServerResponse.createByErrorMessage("无权限操作");
         }
     }
+
+    /**
+     * 查询子节点信息
+     *
+     * @param session
+     * @param categoryId
+     * @return
+     */
+    @RequestMapping(value = "get_children.do")
+    @ResponseBody
+    public ServerResponse getChildrenNode(HttpSession session, @RequestParam(value = "parentId", defaultValue = "0") Integer parentId) {
+        //　判断是否登录
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录");
+        }
+
+        // 判断是否是管理员身份
+        if (userService.checkAdminRole(user).isSuccess()) { // 是管理员
+            // 查询子节点category信息，并且不递归，保持平级
+            return categoryService.getChildrenNode(parentId);
+        } else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
 }
