@@ -22,6 +22,13 @@ public class ShippingService implements IShippingService {
     @Autowired
     private ShippingMapper shippingMapper;
 
+    /**
+     * 添加收货地址
+     *
+     * @param userId
+     * @param shipping
+     * @return
+     */
     @Override
     public ServerResponse add(Integer userId, Shipping shipping) {
         // 判断收货人是否为空
@@ -64,5 +71,26 @@ public class ShippingService implements IShippingService {
         }
 
         return ServerResponse.createByErrorMessage("添加收货地址失败");
+    }
+
+    /**
+     * 删除收货地址
+     *
+     * @param userId
+     * @param shippingId
+     * @return
+     */
+    @Override
+    public ServerResponse delete(Integer userId, Integer shippingId) {
+        if (userId == null || shippingId == null) {
+            return ServerResponse.createByErrorMessage("参数错误");
+        }
+
+        int resultCount = shippingMapper.deleteByPrimaryKeyAndUserId(userId, shippingId);
+        if (resultCount > 0) {
+            return ServerResponse.createBySuccessMessage("删除地址成功");
+        }
+
+        return ServerResponse.createByErrorMessage("删除地址失败");
     }
 }

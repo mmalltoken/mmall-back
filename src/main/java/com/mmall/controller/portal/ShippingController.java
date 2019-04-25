@@ -9,6 +9,7 @@ import com.mmall.service.IShippingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
@@ -32,7 +33,7 @@ public class ShippingController {
      * @param session
      * @return
      */
-    @RequestMapping("add.do")
+    @RequestMapping(value = "add.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse add(Shipping shipping, HttpSession session) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
@@ -41,5 +42,23 @@ public class ShippingController {
         }
 
         return shippingService.add(user.getId(), shipping);
+    }
+
+    /**
+     * 删除收货地址
+     *
+     * @param shippingId
+     * @param session
+     * @return
+     */
+    @RequestMapping(value = "delete.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse delete(Integer shippingId, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return shippingService.delete(user.getId(), shippingId);
     }
 }
