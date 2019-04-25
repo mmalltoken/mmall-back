@@ -79,4 +79,22 @@ public class ShippingController {
 
         return shippingService.update(user.getId(), shipping);
     }
+
+    /**
+     * 获取收获地址详情
+     *
+     * @param session
+     * @param shippingId
+     * @return
+     */
+    @RequestMapping("detail.do")
+    @ResponseBody
+    public ServerResponse<Shipping> detail(HttpSession session, Integer shippingId) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return shippingService.detail(user.getId(), shippingId);
+    }
 }

@@ -9,4 +9,6 @@ public interface IShippingService {
     ServerResponse delete(Integer userId, Integer shippingId);
 
     ServerResponse update(Integer userId, Shipping shipping);
+
+    ServerResponse<Shipping> detail(Integer userId, Integer shippingId);
 }

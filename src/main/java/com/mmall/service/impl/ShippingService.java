@@ -134,4 +134,26 @@ public class ShippingService implements IShippingService {
 
         return ServerResponse.createByErrorMessage("更新地址失败");
     }
+
+    /**
+     * 获取收货地址详情
+     *
+     * @param userId
+     * @param shippingId
+     * @return
+     */
+    @Override
+    public ServerResponse<Shipping> detail(Integer userId, Integer shippingId) {
+        if (userId == null || shippingId == null) {
+            return ServerResponse.createByErrorMessage("参数错误");
+        }
+
+        Shipping shipping = shippingMapper.selectByPrimaryKeyAndUserId(shippingId, userId);
+
+        if (shipping == null) {
+            return ServerResponse.createByErrorMessage("无法查询到该地址");
+        }
+
+        return ServerResponse.createBySuccess("查询成功", shipping);
+    }
 }

@@ -218,5 +218,12 @@
             update_time = now()
         </set>
         where id = #{id,jdbcType=INTEGER} and user_id = #{userId,jdbcType=INTEGER}
-  </update>
+    </update>
+
+    <select id="selectByPrimaryKeyAndUserId" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mmall_shipping
+        where id = #{id} and user_id = #{userId}
+    </select>
 </mapper>
