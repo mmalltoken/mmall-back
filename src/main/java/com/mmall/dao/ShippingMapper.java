@@ -17,4 +17,6 @@ public interface ShippingMapper {
     int updateByPrimaryKey(Shipping record);
 
     int deleteByPrimaryKeyAndUserId(@Param("userId") Integer userId, @Param("id") Integer id);
+
+    int updateByShopping(Shipping shipping);
 }

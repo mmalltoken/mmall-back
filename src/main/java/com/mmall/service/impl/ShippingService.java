@@ -93,4 +93,45 @@ public class ShippingService implements IShippingService {
 
         return ServerResponse.createByErrorMessage("删除地址失败");
     }
+
+    @Override
+    public ServerResponse update(Integer userId, Shipping shipping) {
+        // 判断收货人是否为空
+        if (StringUtils.isBlank(shipping.getReceiverName())) {
+            return ServerResponse.createByErrorMessage("收货人名称不允许为空");
+        }
+
+        // 判断省份是否为空
+        if (StringUtils.isBlank(shipping.getReceiverProvince())) {
+            return ServerResponse.createByErrorMessage("所在省份不允许为空");
+        }
+
+        // 判断城市是否为空
+        if (StringUtils.isBlank(shipping.getReceiverCity())) {
+            return ServerResponse.createByErrorMessage("所在城市不允许为空");
+        }
+
+        // 判断收货人是否为空
+        if (StringUtils.isBlank(shipping.getReceiverName())) {
+            return ServerResponse.createByErrorMessage("收货人名称不允许为空");
+        }
+
+        // 判断收货地址是否为空
+        if (StringUtils.isBlank(shipping.getReceiverAddress())) {
+            return ServerResponse.createByErrorMessage("收货地址不允许为空");
+        }
+
+        // 判断收件人手机是否为空
+        if (StringUtils.isBlank(shipping.getReceiverMobile())) {
+            return ServerResponse.createByErrorMessage("收件人手机不允许为空");
+        }
+
+        shipping.setUserId(userId);
+        int rowCount = shippingMapper.updateByShopping(shipping);
+        if (rowCount > 0) {
+            return ServerResponse.createBySuccess("更新地址成功");
+        }
+
+        return ServerResponse.createByErrorMessage("更新地址失败");
+    }
 }

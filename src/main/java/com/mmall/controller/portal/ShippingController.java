@@ -61,4 +61,22 @@ public class ShippingController {
 
         return shippingService.delete(user.getId(), shippingId);
     }
+
+    /**
+     * 更新收货地址
+     *
+     * @param session
+     * @param shipping
+     * @return
+     */
+    @RequestMapping("update.do")
+    @ResponseBody
+    public ServerResponse update(HttpSession session, Shipping shipping) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return shippingService.update(user.getId(), shipping);
+    }
 }
