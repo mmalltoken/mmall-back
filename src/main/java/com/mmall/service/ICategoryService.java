@@ -12,4 +12,6 @@ public interface ICategoryService {
     ServerResponse<String> updateCategoryName(Integer categoryId, String categoryName);
 
     ServerResponse<List<Category>> getChildrenNode(Integer parentId);
+
+    ServerResponse<List<Integer>> getSelfAndChildrenId(Integer categoryId);
 }

@@ -1,5 +1,7 @@
 package com.mmall.service.impl;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
 import com.mmall.pojo.Category;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service("categoryService")
 public class CategoryService implements ICategoryService {
@@ -76,7 +79,7 @@ public class CategoryService implements ICategoryService {
      */
     @Override
     public ServerResponse<List<Category>> getChildrenNode(Integer parentId) {
-        if(parentId == null){
+        if (parentId == null) {
             return ServerResponse.createByErrorMessage("参数错误");
         }
 
@@ -86,5 +89,49 @@ public class CategoryService implements ICategoryService {
         }
 
         return ServerResponse.createBySuccess(categoryList);
+    }
+
+    /**
+     * 查询本身及子节点的id
+     *
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public ServerResponse<List<Integer>> getSelfAndChildrenId(Integer categoryId) {
+        if (categoryId == null) {
+            return ServerResponse.createByErrorMessage("参数错误");
+        }
+
+        Set<Category> categorySet = Sets.newHashSet();
+        findSelfAndChildren(categoryId, categorySet);
+
+        if (CollectionUtils.isEmpty(categorySet)) {
+            return ServerResponse.createByErrorMessage("查询失败");
+        }
+
+        List<Integer> categoryIds = Lists.newArrayList();
+        for (Category category : categorySet) {
+            categoryIds.add(category.getId());
+        }
+
+        return ServerResponse.createBySuccess(categoryIds);
+    }
+
+    private Set<Category> findSelfAndChildren(Integer categoryId, Set<Category> categorySet) {
+        Category category = categoryMapper.selectByPrimaryKey(categoryId);
+        if (category != null) {
+            categorySet.add(category);
+        }
+
+        // 查找子节点
+        List<Category> categoryList = categoryMapper.selectChildrenByParentId(categoryId);
+        if (!CollectionUtils.isEmpty(categoryList)) {
+            for (Category categoryItem : categoryList) {
+                findSelfAndChildren(categoryItem.getId(), categorySet);
+            }
+        }
+
+        return categorySet;
     }
 }

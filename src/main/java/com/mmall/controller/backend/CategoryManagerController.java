@@ -99,4 +99,29 @@ public class CategoryManagerController {
             return ServerResponse.createByErrorMessage("无权限操作");
         }
     }
+
+    /**
+     * 查询本身及子节点的id
+     *
+     * @param session
+     * @param categoryId
+     * @return
+     */
+    @RequestMapping(value = "get_self_children_id.do")
+    @ResponseBody
+    public ServerResponse getSelfAndChildrenId(HttpSession session, @RequestParam(value = "categoryId", defaultValue = "0") Integer categoryId) {
+        //　判断是否登录
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录");
+        }
+
+        // 判断是否是管理员身份
+        if (userService.checkAdminRole(user).isSuccess()) { // 是管理员
+            // 查询当前节点的id，和递归查询子节点的id
+            return categoryService.getSelfAndChildrenId(categoryId);
+        } else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
 }
