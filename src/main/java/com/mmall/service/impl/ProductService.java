@@ -1,9 +1,14 @@
 package com.mmall.service.impl;
 
 import com.mmall.common.ServerResponse;
+import com.mmall.dao.CategoryMapper;
 import com.mmall.dao.ProductMapper;
+import com.mmall.pojo.Category;
 import com.mmall.pojo.Product;
 import com.mmall.service.IProductService;
+import com.mmall.util.DateTimeUtil;
+import com.mmall.util.PropertiesUtil;
+import com.mmall.vo.ProductDetailVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +18,8 @@ public class ProductService implements IProductService {
 
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private CategoryMapper categoryMapper;
 
     @Override
     public ServerResponse saveOrUpdateProduct(Product product) {
@@ -89,5 +96,55 @@ public class ProductService implements IProductService {
         }
 
         return ServerResponse.createByErrorMessage("修改产品销售状态失败");
+    }
+
+    @Override
+    public ServerResponse<ProductDetailVo> manageProductDetail(Integer productId) {
+        if (productId == null) {
+            return ServerResponse.createByErrorMessage("查询商品参数不正确");
+        }
+
+        // 根据商品id查询信息
+        Product product = productMapper.selectByPrimaryKey(productId);
+        if (product == null) {
+            return ServerResponse.createByErrorMessage("查询失败，商品不存在");
+        }
+
+        // 封装数据
+        ProductDetailVo productDetailVo = assembleProductDetailVo(product);
+
+        return ServerResponse.createBySuccess(productDetailVo);
+    }
+
+    /**
+     * 封装商品详情
+     *
+     * @param product
+     * @return
+     */
+    private ProductDetailVo assembleProductDetailVo(Product product) {
+        ProductDetailVo productDetailVo = new ProductDetailVo();
+
+        productDetailVo.setId(product.getId());
+        productDetailVo.setCategoryId(product.getCategoryId());
+        productDetailVo.setName(product.getName());
+        productDetailVo.setSubtitle(product.getSubtitle());
+        productDetailVo.setMainImage(product.getMainImage());
+        productDetailVo.setSubImages(product.getSubImages());
+        productDetailVo.setDetail(product.getDetail());
+        productDetailVo.setPrice(product.getPrice());
+        productDetailVo.setStock(product.getStock());
+        productDetailVo.setStatus(product.getStatus());
+        productDetailVo.setCreateTime(DateTimeUtil.dateToStr(product.getCreateTime()));
+        productDetailVo.setUpdateTime(DateTimeUtil.dateToStr(product.getUpdateTime()));
+        productDetailVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix", "http://img.lzy.com/"));
+        Category category = categoryMapper.selectByPrimaryKey(product.getCategoryId());
+        if (category == null) {
+            productDetailVo.setParentCategoryId(0);   // 默认根节点
+        } else {
+            productDetailVo.setParentCategoryId(category.getParentId());
+        }
+
+        return productDetailVo;
     }
 }

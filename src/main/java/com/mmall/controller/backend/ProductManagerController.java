@@ -7,6 +7,7 @@ import com.mmall.pojo.Product;
 import com.mmall.pojo.User;
 import com.mmall.service.IProductService;
 import com.mmall.service.IUserService;
+import com.mmall.vo.ProductDetailVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,6 +66,28 @@ public class ProductManagerController {
         }
         if (userService.checkAdminRole(user).isSuccess()) {
             return productService.setSaleStatus(productId, status);
+        } else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
+
+    /**
+     * 商品详情
+     *
+     * @param productId
+     * @param session
+     * @return
+     */
+    @RequestMapping(value = "detail.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<ProductDetailVo> detail(Integer productId, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录");
+
+        }
+        if (userService.checkAdminRole(user).isSuccess()) {
+            return productService.manageProductDetail(productId);
         } else {
             return ServerResponse.createByErrorMessage("无权限操作");
         }

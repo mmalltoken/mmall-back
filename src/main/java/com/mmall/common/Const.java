@@ -1,5 +1,7 @@
 package com.mmall.common;
 
+import com.mmall.pojo.Product;
+
 /**
  * 描述：全局常量封装类
  * 作者：NearJC
@@ -16,5 +18,26 @@ public class Const {
     public interface Role {
         int ROLE_CUSTOMER = 0; // 普通用户
         int ROLE_ADMIN = 1;  // 管理员
+    }
+
+    // 商品状态
+    public enum ProductStatusEnum {
+        ON_SALE(1, "在线");
+
+        private int code;
+        private String desc;
+
+        ProductStatusEnum(int code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
     }
 }
