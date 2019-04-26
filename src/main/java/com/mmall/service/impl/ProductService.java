@@ -1,5 +1,8 @@
 package com.mmall.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
 import com.mmall.dao.ProductMapper;
@@ -9,9 +12,13 @@ import com.mmall.service.IProductService;
 import com.mmall.util.DateTimeUtil;
 import com.mmall.util.PropertiesUtil;
 import com.mmall.vo.ProductDetailVo;
+import com.mmall.vo.ProductListItemVo;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service("productService")
 public class ProductService implements IProductService {
@@ -117,6 +124,42 @@ public class ProductService implements IProductService {
     }
 
     /**
+     * 查询商品信息
+     *
+     * @param productName
+     * @param productId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public ServerResponse<PageInfo> searchProduct(String productName, Integer productId, int pageNum, int pageSize) {
+        // 拼接商品名称条件
+        if (StringUtils.isNotBlank(productName)) {
+            productName = new StringBuilder().append("%").append(productName).append("%").toString();
+        }
+
+        // 分页查询
+        PageHelper.startPage(pageNum, pageSize);
+        List<Product> productList = productMapper.selectByIdAndName(productId, productName);
+
+        // 封装数据
+        List<ProductListItemVo> productListItemVoList = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(productList)) {
+            for (Product product : productList) {
+                ProductListItemVo productListItemVo = assembleProductListItemVo(product);
+                productListItemVoList.add(productListItemVo);
+            }
+        }
+
+        // 封装分页信息
+        PageInfo pageInfo = new PageInfo(productList);
+        pageInfo.setList(productListItemVoList);
+
+        return ServerResponse.createBySuccess(pageInfo);
+    }
+
+    /**
      * 封装商品详情
      *
      * @param product
@@ -146,5 +189,25 @@ public class ProductService implements IProductService {
         }
 
         return productDetailVo;
+    }
+
+    /**
+     * 封装商品列表项
+     *
+     * @param product
+     * @return
+     */
+    private ProductListItemVo assembleProductListItemVo(Product product) {
+        ProductListItemVo productListItemVo = new ProductListItemVo();
+        productListItemVo.setId(product.getId());
+        productListItemVo.setName(product.getName());
+        productListItemVo.setSubtitle(product.getSubtitle());
+        productListItemVo.setMainImage(product.getMainImage());
+        productListItemVo.setPrice(product.getPrice());
+        productListItemVo.setStock(product.getStock());
+        productListItemVo.setStatus(product.getStatus());
+        productListItemVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix", "http://img.lzy.com/"));
+
+        return productListItemVo;
     }
 }
