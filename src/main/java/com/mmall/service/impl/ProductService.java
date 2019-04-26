@@ -62,4 +62,32 @@ public class ProductService implements IProductService {
 
         return ServerResponse.createByErrorMessage("新增或更新商品参数不正确");
     }
+
+    /**
+     * 更新商品销售状态
+     *
+     * @param productId
+     * @param status
+     * @return
+     */
+    @Override
+    public ServerResponse<String> setSaleStatus(Integer productId, Integer status) {
+        // 参数校验
+        if (productId == null || status == null) {
+            return ServerResponse.createByErrorMessage("更新商品销售状态参数不正确");
+        }
+
+        // 封装商品数据
+        Product product = new Product();
+        product.setId(productId);
+        product.setStatus(status);
+
+        // 更新状态
+        int rowCount = productMapper.updateByPrimaryKeySelective(product);
+        if (rowCount > 0) {
+            return ServerResponse.createBySuccessMessage("修改产品销售状态成功");
+        }
+
+        return ServerResponse.createByErrorMessage("修改产品销售状态失败");
+    }
 }

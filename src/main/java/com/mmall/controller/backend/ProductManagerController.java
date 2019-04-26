@@ -33,7 +33,7 @@ public class ProductManagerController {
      */
     @RequestMapping(value = "save.do", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse productSave(Product product, HttpSession session) {
+    public ServerResponse<String> productSave(Product product, HttpSession session) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录");
@@ -42,6 +42,29 @@ public class ProductManagerController {
         if (userService.checkAdminRole(user).isSuccess()) {
             //填充我们增加产品的业务逻辑
             return productService.saveOrUpdateProduct(product);
+        } else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
+
+    /**
+     * 修改产品销售状态
+     *
+     * @param productId
+     * @param status
+     * @param session
+     * @return
+     */
+    @RequestMapping(value = "set_sale_status.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> setSaleStatus(Integer productId, Integer status, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录");
+
+        }
+        if (userService.checkAdminRole(user).isSuccess()) {
+            return productService.setSaleStatus(productId, status);
         } else {
             return ServerResponse.createByErrorMessage("无权限操作");
         }
