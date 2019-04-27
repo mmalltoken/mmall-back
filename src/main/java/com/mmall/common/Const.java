@@ -1,7 +1,5 @@
 package com.mmall.common;
 
-import com.mmall.pojo.Product;
-
 /**
  * 描述：全局常量封装类
  * 作者：NearJC
@@ -39,5 +37,14 @@ public class Const {
         public String getDesc() {
             return desc;
         }
+    }
+
+    // 购物车
+    public interface Cart {
+        int CHECKED = 1;     // 商品勾选
+        int UN_CHECKED = 0;  // 商品未勾选
+
+        String LIMIT_NUM_SUCCESS = "LIMIT_NUM_SUCCESS";   // 限制成功
+        String LIMIT_NUM_FAIL = "LIMIT_NUM_FAIL";         // 限制失败
     }
 }
