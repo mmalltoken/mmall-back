@@ -3,6 +3,7 @@ package com.mmall.controller.portal;
 import com.mmall.common.Const;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
+import com.mmall.pojo.Cart;
 import com.mmall.pojo.User;
 import com.mmall.service.ICartService;
 import com.mmall.vo.CartVo;
@@ -96,6 +97,76 @@ public class CartController {
         }
 
         return cartService.list(user.getId());
+    }
+
+    /**
+     * 全部勾选
+     *
+     * @param session
+     * @return
+     */
+    @RequestMapping("check_all.do")
+    @ResponseBody
+    public ServerResponse<CartVo> checkAll(HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return cartService.checkOrUnCheck(user.getId(), null, Const.Cart.CHECKED);
+    }
+
+    /**
+     * 全部反选
+     *
+     * @param session
+     * @return
+     */
+    @RequestMapping("uncheck_all.do")
+    @ResponseBody
+    public ServerResponse<CartVo> uncheckAll(HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return cartService.checkOrUnCheck(user.getId(), null, Const.Cart.UN_CHECKED);
+    }
+
+    /**
+     * 勾选单个商品
+     *
+     * @param productId
+     * @param session
+     * @return
+     */
+    @RequestMapping("check.do")
+    @ResponseBody
+    public ServerResponse<CartVo> check(Integer productId, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return cartService.checkOrUnCheck(user.getId(), productId, Const.Cart.CHECKED);
+    }
+
+    /**
+     * 勾选单个商品
+     *
+     * @param productId
+     * @param session
+     * @return
+     */
+    @RequestMapping("uncheck.do")
+    @ResponseBody
+    public ServerResponse<CartVo> uncheck(Integer productId, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return cartService.checkOrUnCheck(user.getId(), productId, Const.Cart.UN_CHECKED);
     }
 
 }

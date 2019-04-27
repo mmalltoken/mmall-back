@@ -145,6 +145,24 @@ public class CartService implements ICartService {
     }
 
     /**
+     * 勾选或不勾选商品
+     *
+     * @param userId
+     * @param productId
+     * @param checked
+     * @return
+     */
+    @Override
+    public ServerResponse<CartVo> checkOrUnCheck(Integer userId, Integer productId, int checked) {
+        cartMapper.updateCartProductChecked(userId, productId, checked);
+
+        // 封装购物车数据
+        CartVo cartVo = assembleCartVo(userId);
+
+        return ServerResponse.createBySuccess(cartVo);
+    }
+
+    /**
      * 购物车Vo
      *
      * @param userId

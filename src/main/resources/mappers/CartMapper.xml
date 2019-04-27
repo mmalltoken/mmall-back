@@ -149,4 +149,16 @@
             </if>
         </where>
     </delete>
+
+    <update id="updateCartProductChecked" parameterType="map">
+        update mmall_cart set checked = #{checked},update_time = now()
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="productId != null">
+                and product_id = #{productId}
+            </if>
+        </where>
+    </update>
 </mapper>
