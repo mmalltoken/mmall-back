@@ -169,4 +169,22 @@ public class CartController {
         return cartService.checkOrUnCheck(user.getId(), productId, Const.Cart.UN_CHECKED);
     }
 
+    /**
+     * 获取购买车中的商品数量
+     *
+     * @param session
+     * @return
+     */
+    @RequestMapping("get_cart_product_count.do")
+    @ResponseBody
+    public ServerResponse<Integer> getCartProductCount(HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+
+        if (user == null) {
+            return ServerResponse.createBySuccess(0);
+        }
+
+        return cartService.getCartProductCount(user.getId());
+    }
+
 }

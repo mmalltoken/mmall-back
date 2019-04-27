@@ -162,6 +162,16 @@ public class CartService implements ICartService {
         return ServerResponse.createBySuccess(cartVo);
     }
 
+    // 获取购买数量
+    @Override
+    public ServerResponse<Integer> getCartProductCount(Integer userId) {
+        if (userId == null) {
+            return ServerResponse.createBySuccess(0);
+        }
+
+        return ServerResponse.createBySuccess(cartMapper.selectCartProductCount(userId));
+    }
+
     /**
      * 购物车Vo
      *

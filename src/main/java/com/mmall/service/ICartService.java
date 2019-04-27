@@ -14,4 +14,6 @@ public interface ICartService {
     ServerResponse<CartVo> list(Integer userId);
 
     ServerResponse<CartVo> checkOrUnCheck(Integer userId, Integer productId, int checked);
+
+    ServerResponse<Integer> getCartProductCount(Integer userId);
 }
