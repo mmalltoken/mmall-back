@@ -1,6 +1,7 @@
 package com.mmall.controller.portal;
 
 import com.mmall.common.Const;
+import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.ICartService;
@@ -38,9 +39,29 @@ public class CartController {
     public ServerResponse<CartVo> add(Integer productId, Integer count, HttpSession session) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
-            return ServerResponse.createByErrorMessage("用户未登录");
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
         }
 
         return cartService.addCartProduct(productId, user.getId(), count);
+    }
+
+    /**
+     * 更新购物车
+     *
+     * @param session
+     * @param count
+     * @param productId
+     * @return
+     */
+    @RequestMapping("update.do")
+    @ResponseBody
+    public ServerResponse<CartVo> update(Integer count, Integer productId, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return cartService.updateCartProduct(productId, user.getId(), count);
     }
 }

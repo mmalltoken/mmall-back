@@ -73,6 +73,38 @@ public class CartService implements ICartService {
     }
 
     /**
+     * 修改购物车商品的数量
+     *
+     * @param productId
+     * @param userId
+     * @param count
+     * @return
+     */
+    @Override
+    public ServerResponse<CartVo> updateCartProduct(Integer productId, Integer userId, Integer count) {
+        // 参数校验
+        if (productId == null || count == null) {
+            return ServerResponse.createByErrorMessage("更新商品参数错误");
+        }
+
+        // 更新商品数量
+        Cart cart = cartMapper.selectByProductIdAndUserId(productId, userId);
+        if (cart == null) {
+            return ServerResponse.createByErrorMessage("查询不到该商品");
+        }
+        cart.setQuantity(count);
+        int rowCount = cartMapper.updateByPrimaryKeySelective(cart);
+        if (rowCount == 0) {
+            return ServerResponse.createByErrorMessage("更新商品购买数量失败");
+        }
+
+        // 封装购物车数据
+        CartVo cartVo = assembleCartVo(userId);
+
+        return ServerResponse.createBySuccess(cartVo);
+    }
+
+    /**
      * 购物车Vo
      *
      * @param userId
