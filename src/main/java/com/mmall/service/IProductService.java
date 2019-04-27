@@ -14,4 +14,8 @@ public interface IProductService {
     ServerResponse<ProductDetailVo> manageProductDetail(Integer productId);
 
     ServerResponse<PageInfo> searchProduct(String productName, Integer productId, int pageNum, int pageSize);
+
+    // --------------前台接口--------------------
+    
+    ServerResponse<ProductDetailVo> productDetail(Integer productId);
 }

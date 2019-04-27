@@ -3,6 +3,7 @@ package com.mmall.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
 import com.mmall.dao.ProductMapper;
@@ -157,6 +158,30 @@ public class ProductService implements IProductService {
         pageInfo.setList(productListItemVoList);
 
         return ServerResponse.createBySuccess(pageInfo);
+    }
+
+    /**
+     * 获取商品信息
+     *
+     * @param productId
+     * @return
+     */
+    @Override
+    public ServerResponse<ProductDetailVo> productDetail(Integer productId) {
+        // 参数校验
+        if (productId == null) {
+            return ServerResponse.createByErrorMessage("查询商品详情参数不正确");
+        }
+
+        // 查询
+        Product product = productMapper.selectByPrimaryKey(productId);
+        if (product == null || product.getStatus() != Const.ProductStatusEnum.ON_SALE.getCode()) {
+            return ServerResponse.createByErrorMessage("产品不存在或已下架");
+        }
+
+        ProductDetailVo productDetailVo = assembleProductDetailVo(product);
+
+        return ServerResponse.createBySuccess(productDetailVo);
     }
 
     /**
