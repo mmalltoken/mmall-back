@@ -1,5 +1,6 @@
 package com.mmall.service.impl;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
@@ -96,6 +97,31 @@ public class CartService implements ICartService {
         int rowCount = cartMapper.updateByPrimaryKeySelective(cart);
         if (rowCount == 0) {
             return ServerResponse.createByErrorMessage("更新商品购买数量失败");
+        }
+
+        // 封装购物车数据
+        CartVo cartVo = assembleCartVo(userId);
+
+        return ServerResponse.createBySuccess(cartVo);
+    }
+
+    /**
+     * 删除购物车中的商品
+     *
+     * @param productIds
+     * @param userId
+     * @return
+     */
+    @Override
+    public ServerResponse<CartVo> deleteCartProduct(String productIds, Integer userId) {
+        if (productIds == null) {
+            return ServerResponse.createByErrorMessage("参数错误");
+        }
+
+        List<String> productIdList = Splitter.on(",").splitToList(productIds);
+        int rowCount = cartMapper.deleteByProductIdsAndUserId(productIdList, userId);
+        if (rowCount == 0) {
+            return ServerResponse.createByErrorMessage("删除购物车中的商品失败");
         }
 
         // 封装购物车数据

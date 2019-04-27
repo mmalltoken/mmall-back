@@ -8,4 +8,6 @@ public interface ICartService {
     ServerResponse<CartVo> addCartProduct(Integer productId, Integer userId, Integer count);
 
     ServerResponse<CartVo> updateCartProduct(Integer productId, Integer userId, Integer count);
+
+    ServerResponse<CartVo> deleteCartProduct(String productIds, Integer userId);
 }

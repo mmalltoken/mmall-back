@@ -134,4 +134,19 @@
         select count(1) from mmall_cart
         where user_id = #{userId} and checked = 0
     </select>
+
+    <delete id="deleteByProductIdsAndUserId" parameterType="map">
+        delete from mmall_cart
+        <where>
+            <if test="productIdList != null and productIdList.size != 0">
+                and product_id in
+                <foreach collection="productIdList" item="productId" index="index" open="(" separator="," close=")">
+                    #{productId}
+                </foreach>
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+        </where>
+    </delete>
 </mapper>

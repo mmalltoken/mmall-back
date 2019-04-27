@@ -5,7 +5,6 @@ import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.ICartService;
-import com.mmall.service.IUserService;
 import com.mmall.vo.CartVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -46,7 +45,7 @@ public class CartController {
     }
 
     /**
-     * 更新购物车
+     * 更新购物车商品数量
      *
      * @param session
      * @param count
@@ -64,4 +63,24 @@ public class CartController {
 
         return cartService.updateCartProduct(productId, user.getId(), count);
     }
+
+    /**
+     * 删除购物车中的商品
+     *
+     * @param productIds
+     * @param session
+     * @return
+     */
+    @RequestMapping("delete.do")
+    @ResponseBody
+    public ServerResponse<CartVo> delete(String productIds, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return cartService.deleteCartProduct(productIds, user.getId());
+    }
+
 }
