@@ -131,6 +131,20 @@ public class CartService implements ICartService {
     }
 
     /**
+     * 获取购物车列表
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public ServerResponse<CartVo> list(Integer userId) {
+        // 封装购物车数据
+        CartVo cartVo = assembleCartVo(userId);
+
+        return ServerResponse.createBySuccess(cartVo);
+    }
+
+    /**
      * 购物车Vo
      *
      * @param userId

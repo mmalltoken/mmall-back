@@ -56,7 +56,6 @@ public class CartController {
     @ResponseBody
     public ServerResponse<CartVo> update(Integer count, Integer productId, HttpSession session) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
-
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
         }
@@ -75,12 +74,28 @@ public class CartController {
     @ResponseBody
     public ServerResponse<CartVo> delete(String productIds, HttpSession session) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
-
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
         }
 
         return cartService.deleteCartProduct(productIds, user.getId());
+    }
+
+    /**
+     * 查询购物车列表
+     *
+     * @param session
+     * @return
+     */
+    @RequestMapping("list.do")
+    @ResponseBody
+    public ServerResponse<CartVo> list(HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return cartService.list(user.getId());
     }
 
 }
