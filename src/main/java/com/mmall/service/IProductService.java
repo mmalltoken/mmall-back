@@ -13,9 +13,11 @@ public interface IProductService {
 
     ServerResponse<ProductDetailVo> manageProductDetail(Integer productId);
 
-    ServerResponse<PageInfo> searchProduct(String productName, Integer productId, int pageNum, int pageSize);
+    ServerResponse<PageInfo> backendSearchProduct(String productName, Integer productId, int pageNum, int pageSize);
 
     // --------------前台接口--------------------
     
     ServerResponse<ProductDetailVo> productDetail(Integer productId);
+
+    ServerResponse portalSearchProduct(String keyword, Integer categoryId, String orderBy, int pageNum, int pageSize);
 }

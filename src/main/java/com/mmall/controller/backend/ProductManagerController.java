@@ -130,7 +130,7 @@ public class ProductManagerController {
         }
 
         if (userService.checkAdminRole(user).isSuccess()) {
-            return productService.searchProduct(productName, productId, pageNum, pageSize);
+            return productService.backendSearchProduct(productName, productId, pageNum, pageSize);
         } else {
             return ServerResponse.createByErrorMessage("无权限操作");
         }

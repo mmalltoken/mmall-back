@@ -189,4 +189,20 @@
         </where>
         order by id desc
     </select>
+
+    <select id="selectByKeywordAndCategoryIds" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mmall_product
+        where status = 1
+        <if test="keyword != null and keyword != ''">
+            and name like #{keyword}
+        </if>
+        <if test="categoryIdList != null and categoryIdList.size != 0">
+            and category_id in
+            <foreach collection="categoryIdList" index="index" item="categoryId" open="(" separator="," close=")">
+                #{categoryId}
+            </foreach>
+        </if>
+    </select>
 </mapper>

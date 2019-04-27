@@ -28,6 +28,8 @@ public class ProductService implements IProductService {
     private ProductMapper productMapper;
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired
+    private CategoryService categoryService;
 
     @Override
     public ServerResponse saveOrUpdateProduct(Product product) {
@@ -134,7 +136,7 @@ public class ProductService implements IProductService {
      * @return
      */
     @Override
-    public ServerResponse<PageInfo> searchProduct(String productName, Integer productId, int pageNum, int pageSize) {
+    public ServerResponse<PageInfo> backendSearchProduct(String productName, Integer productId, int pageNum, int pageSize) {
         // 拼接商品名称条件
         if (StringUtils.isNotBlank(productName)) {
             productName = new StringBuilder().append("%").append(productName).append("%").toString();
@@ -185,6 +187,68 @@ public class ProductService implements IProductService {
     }
 
     /**
+     * 条件查询商品
+     *
+     * @param keyword
+     * @param categoryId
+     * @param orderBy
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public ServerResponse portalSearchProduct(String keyword, Integer categoryId, String orderBy, int pageNum, int pageSize) {
+        // 参数校验
+        if (StringUtils.isBlank(keyword) && categoryId == null) {
+            return ServerResponse.createByErrorMessage("查询条件参数错误");
+        }
+
+        // 查询分类的子分类
+        List<Integer> categoryIdList = Lists.newArrayList();
+        if (categoryId != null) {
+            // 没有该分类，并且还没有搜索关键字，这个时间返回一个空结果集，不报错
+            Category category = categoryMapper.selectByPrimaryKey(categoryId);
+            if (category == null && StringUtils.isBlank(keyword)) {
+                PageHelper.startPage(pageNum, pageSize);
+                List<ProductListItemVo> productListItemVoList = Lists.newArrayList();
+                PageInfo pageInfo = new PageInfo(productListItemVoList);
+                return ServerResponse.createBySuccess(pageInfo);
+            }
+
+            ServerResponse<List<Integer>> response = categoryService.getSelfAndChildrenId(categoryId);
+            if (response.isSuccess()) {
+                categoryIdList = response.getData();
+            }
+        }
+
+        // 关键词拼接
+        if (StringUtils.isNotBlank(keyword)) {
+            keyword = new StringBuilder().append("%").append(keyword).append("%").toString();
+        }
+
+        // 处理排序
+        if (StringUtils.isNotBlank(orderBy)) {
+            String[] orderByArray = orderBy.split("_");
+            PageHelper.orderBy(orderByArray[0] + " " + orderByArray[1]);
+        }
+
+        // 分页查询
+        PageHelper.startPage(pageNum, pageSize);
+        List<Product> productList = productMapper.selectByKeywordAndCategoryIds(keyword, categoryIdList);
+
+        // 封闭响应数据
+        List<ProductListItemVo> productListItemVoList = Lists.newArrayList();
+        for (Product product : productList) {
+            ProductListItemVo productListItemVo = assembleProductListItemVo(product);
+            productListItemVoList.add(productListItemVo);
+        }
+        PageInfo pageInfo = new PageInfo(productList);
+        pageInfo.setList(productListItemVoList);
+
+        return ServerResponse.createBySuccess(pageInfo);
+    }
+
+    /**
      * 封装商品详情
      *
      * @param product
@@ -231,7 +295,7 @@ public class ProductService implements IProductService {
         productListItemVo.setPrice(product.getPrice());
         productListItemVo.setStock(product.getStock());
         productListItemVo.setStatus(product.getStatus());
-        productListItemVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix", "http://img.lzy.com/"));
+        productListItemVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix", "ftp://img.lzy.com/"));
 
         return productListItemVo;
     }
