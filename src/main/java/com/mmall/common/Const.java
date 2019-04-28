@@ -39,6 +39,71 @@ public class Const {
         }
     }
 
+    // 订单状态
+    public enum OrderStatusEnum {
+        CANCELED(0, "已取消"),
+        NO_PAY(10, "未支付"),
+        PAID(20, "已支付"),
+        SHIPPED(40, "已发货"),
+        ORDER_SUCCESS(50, "订单完成"),
+        ORDER_CLOSE(60, "订单关闭");
+
+        private int code;
+        private String desc;
+
+        OrderStatusEnum(int code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public static OrderStatusEnum codeOf(Integer code) {
+            for (OrderStatusEnum orderStatusEnum : values()) {
+                if (orderStatusEnum.getCode() == code) {
+                    return orderStatusEnum;
+                }
+            }
+            throw new RuntimeException("没有找到对应的类型");
+        }
+    }
+
+    public enum PaymentTypeEnum {
+        ONLINE_PAY(1, "在线支付");
+
+        private int code;
+        private String desc;
+
+        PaymentTypeEnum(int code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public static PaymentTypeEnum codeOf(Integer code) {
+            for (PaymentTypeEnum paymentTypeEnum : values()) {
+                if (paymentTypeEnum.getCode() == code) {
+                    return paymentTypeEnum;
+                }
+            }
+            throw new RuntimeException("没有找到对应的类型");
+        }
+
+    }
+
     // 购物车
     public interface Cart {
         int CHECKED = 1;     // 商品勾选
