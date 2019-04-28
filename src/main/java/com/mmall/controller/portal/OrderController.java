@@ -43,4 +43,23 @@ public class OrderController {
 
         return orderService.createOrder(shippingId, user.getId());
     }
+
+    /**
+     * 取消订单
+     *
+     * @param orderNo
+     * @param session
+     * @return
+     */
+    @RequestMapping("cancel.do")
+    @ResponseBody
+    public ServerResponse<String> cancel(Long orderNo, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return orderService.cancelOrder(orderNo, user.getId());
+    }
+
 }

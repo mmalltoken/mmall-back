@@ -93,6 +93,42 @@ public class OrderService implements IOrderService {
     }
 
     /**
+     * 取消未支付的订单
+     *
+     * @param userId
+     * @param orderNo
+     * @return
+     */
+    @Override
+    public ServerResponse<String> cancelOrder(Long orderNo, Integer userId) {
+        if (orderNo == null) {
+            return ServerResponse.createByErrorMessage("取消订单参数错误");
+        }
+
+        // 查询订单
+        Order order = orderMapper.selectByUserIdAndOrderNo(userId, orderNo);
+        if (order == null) {
+            return ServerResponse.createByErrorMessage("订单不存在");
+        }
+
+        // 校验订单状态是否已支付
+        if (order.getStatus() != Const.OrderStatusEnum.NO_PAY.getCode()) {
+            return ServerResponse.createByErrorMessage("已付款，无法取消订单");
+        }
+
+        // 更新订单状态为取消
+        Order updateOrder = new Order();
+        updateOrder.setId(order.getId());
+        updateOrder.setStatus(Const.OrderStatusEnum.CANCELED.getCode());
+        int rowCount = orderMapper.updateByPrimaryKeySelective(updateOrder);
+        if (rowCount > 0) {
+            return ServerResponse.createBySuccess("订单取消成功");
+        }
+
+        return ServerResponse.createByErrorMessage("订单取消失败");
+    }
+
+    /**
      * 封装订单Vo
      *
      * @param order
