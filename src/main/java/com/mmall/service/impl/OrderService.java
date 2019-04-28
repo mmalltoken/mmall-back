@@ -136,7 +136,7 @@ public class OrderService implements IOrderService {
      * @return
      */
     @Override
-    public ServerResponse getCartCheckedProduct(Integer userId) {
+    public ServerResponse<CartCheckedProductVo> getCartCheckedProduct(Integer userId) {
         // 查询购物车中已勾选的商品
         List<Cart> cartList = cartMapper.selectCheckedProductByUserId(userId);
         if (CollectionUtils.isEmpty(cartList)) {
@@ -165,6 +165,36 @@ public class OrderService implements IOrderService {
         cartCheckedProductVo.setOrderItemVoList(orderItemVoList);
 
         return ServerResponse.createBySuccess(cartCheckedProductVo);
+    }
+
+    /**
+     * 获取订单详情
+     *
+     * @param orderNo
+     * @param userId
+     * @return
+     */
+    @Override
+    public ServerResponse<OrderVo> getOrderDetail(Long orderNo, Integer userId) {
+        if (orderNo == null) {
+            return ServerResponse.createByErrorMessage("获取订单详情参数错误");
+        }
+
+        // 查询订单
+        Order order = orderMapper.selectByUserIdAndOrderNo(userId, orderNo);
+        if (order == null) {
+            return ServerResponse.createByErrorMessage("订单不存在");
+        }
+
+        // 获取订单明细
+        List<OrderItem> orderItemList = orderItemMapper.selectByOrderNoAndUserId(orderNo, userId);
+        if (CollectionUtils.isEmpty(orderItemList)) {
+            return ServerResponse.createByErrorMessage("订单明细为空");
+        }
+
+        OrderVo orderVo = assembleOrderVo(order, orderItemList);
+
+        return ServerResponse.createBySuccess(orderVo);
     }
 
     /**

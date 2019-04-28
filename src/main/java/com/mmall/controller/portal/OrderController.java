@@ -5,6 +5,7 @@ import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IOrderService;
+import com.mmall.vo.CartCheckedProductVo;
 import com.mmall.vo.OrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -70,7 +71,7 @@ public class OrderController {
      */
     @RequestMapping("get_cart_checked_product.do")
     @ResponseBody
-    public ServerResponse getCartCheckedProduct(HttpSession session) {
+    public ServerResponse<CartCheckedProductVo> getCartCheckedProduct(HttpSession session) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
@@ -79,4 +80,21 @@ public class OrderController {
         return orderService.getCartCheckedProduct(user.getId());
     }
 
+    /**
+     * 获取订单详情
+     *
+     * @param orderNo
+     * @param session
+     * @return
+     */
+    @RequestMapping("detail.do")
+    @ResponseBody
+    public ServerResponse<OrderVo> detail(Long orderNo, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return orderService.getOrderDetail(orderNo, user.getId());
+    }
 }
