@@ -224,6 +224,35 @@ public class OrderService implements IOrderService {
     }
 
     /**
+     * 后台-订单详情
+     *
+     * @param orderNo
+     * @return
+     */
+    @Override
+    public ServerResponse<OrderVo> managerDetail(Long orderNo) {
+        if (orderNo == null) {
+            return ServerResponse.createByErrorMessage("获取订单详情参数错误");
+        }
+
+        // 查询订单
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if (order == null) {
+            return ServerResponse.createByErrorMessage("订单不存在");
+        }
+
+        // 获取订单明细
+        List<OrderItem> orderItemList = orderItemMapper.selectByOrderNo(orderNo);
+        if (CollectionUtils.isEmpty(orderItemList)) {
+            return ServerResponse.createByErrorMessage("订单明细为空");
+        }
+
+        OrderVo orderVo = assembleOrderVo(order, orderItemList);
+
+        return ServerResponse.createBySuccess(orderVo);
+    }
+
+    /**
      * 封闭订单Vo列表
      *
      * @param userId

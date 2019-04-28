@@ -183,4 +183,11 @@
         from mmall_order_item
         where user_id = #{userId} and order_no = #{orderNo}
     </select>
+
+    <select id="selectByOrderNo" parameterType="long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mmall_order_item
+        where order_no = #{orderNo}
+    </select>
 </mapper>
