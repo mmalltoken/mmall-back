@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -274,6 +275,39 @@ public class OrderService implements IOrderService {
         pageInfo.setList(orderVoList);
 
         return ServerResponse.createBySuccess(pageInfo);
+    }
+
+    /**
+     * 订单发货
+     *
+     * @param orderNo
+     * @return
+     */
+    @Override
+    public ServerResponse<String> manageDeliverGoods(Long orderNo) {
+        if (orderNo == null) {
+            return ServerResponse.createByErrorMessage("订单发货参数错误");
+        }
+
+        // 查询订单
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if (order == null) {
+            return ServerResponse.createByErrorMessage("订单不存在");
+        }
+
+        if (Const.OrderStatusEnum.PAID.getCode() == order.getStatus()) {
+            Order updateOrder = new Order();
+            updateOrder.setId(order.getId());
+            updateOrder.setStatus(Const.OrderStatusEnum.SHIPPED.getCode());
+            updateOrder.setSendTime(new Date());
+
+            int rowCount = orderMapper.updateByPrimaryKeySelective(updateOrder);
+            if (rowCount > 0) {
+                return ServerResponse.createBySuccess("发货成功");
+            }
+        }
+
+        return ServerResponse.createByErrorMessage("发货失败");
     }
 
     /**

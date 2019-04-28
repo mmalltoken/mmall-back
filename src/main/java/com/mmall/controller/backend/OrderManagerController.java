@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 
+/**
+ * 描述：后台 - 订单模块
+ * 作者：NearJC
+ * 时间：2019.4.28
+ */
 @Controller
 @RequestMapping("/manage/order/")
 public class OrderManagerController {
@@ -63,10 +68,31 @@ public class OrderManagerController {
                                            HttpSession session) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录,请登录管理员");
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
         }
         if (userService.checkAdminRole(user).isSuccess()) {
             return orderService.manageSearch(orderNo, pageNum, pageSize);
+        } else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
+
+    /**
+     * 订单发货
+     *
+     * @param orderNo
+     * @param session
+     * @return
+     */
+    @RequestMapping("deliver_goods.do")
+    @ResponseBody
+    public ServerResponse<String> deliverGoods(Long orderNo, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+        if (userService.checkAdminRole(user).isSuccess()) {
+            return orderService.manageDeliverGoods(orderNo);
         } else {
             return ServerResponse.createByErrorMessage("无权限操作");
         }
