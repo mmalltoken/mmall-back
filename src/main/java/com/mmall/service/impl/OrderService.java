@@ -9,6 +9,7 @@ import com.mmall.service.IOrderService;
 import com.mmall.util.BigDecimalUtil;
 import com.mmall.util.DateTimeUtil;
 import com.mmall.util.PropertiesUtil;
+import com.mmall.vo.CartCheckedProductVo;
 import com.mmall.vo.OrderItemVo;
 import com.mmall.vo.OrderVo;
 import com.mmall.vo.ShippingVo;
@@ -126,6 +127,44 @@ public class OrderService implements IOrderService {
         }
 
         return ServerResponse.createByErrorMessage("订单取消失败");
+    }
+
+    /**
+     * 获取购物车中已勾选的商品信息
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public ServerResponse getCartCheckedProduct(Integer userId) {
+        // 查询购物车中已勾选的商品
+        List<Cart> cartList = cartMapper.selectCheckedProductByUserId(userId);
+        if (CollectionUtils.isEmpty(cartList)) {
+            return ServerResponse.createByErrorMessage("购物车为空");
+        }
+
+        // 获取订单明细
+        ServerResponse response = assembleOrderItem(cartList);
+        if (!response.isSuccess()) {
+            return response;
+        }
+        List<OrderItem> orderItemList = (List<OrderItem>) response.getData();
+        // 封装订单明细Vo
+        List<OrderItemVo> orderItemVoList = Lists.newArrayList();
+        for (OrderItem orderItem : orderItemList) {
+            OrderItemVo orderItemVo = assembleOrderItemVo(orderItem);
+            orderItemVoList.add(orderItemVo);
+        }
+        // 计算支付总金额
+        BigDecimal payment = calculatePayment(orderItemList);
+
+        // 填充数据
+        CartCheckedProductVo cartCheckedProductVo = new CartCheckedProductVo();
+        cartCheckedProductVo.setPayment(payment);
+        cartCheckedProductVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix"));
+        cartCheckedProductVo.setOrderItemVoList(orderItemVoList);
+
+        return ServerResponse.createBySuccess(cartCheckedProductVo);
     }
 
     /**

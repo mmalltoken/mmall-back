@@ -62,4 +62,21 @@ public class OrderController {
         return orderService.cancelOrder(orderNo, user.getId());
     }
 
+    /**
+     * 获取购物车中已勾选的商品信息
+     *
+     * @param session
+     * @return
+     */
+    @RequestMapping("get_cart_checked_product.do")
+    @ResponseBody
+    public ServerResponse getCartCheckedProduct(HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        return orderService.getCartCheckedProduct(user.getId());
+    }
+
 }
