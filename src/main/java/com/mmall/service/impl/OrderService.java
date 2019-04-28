@@ -253,6 +253,30 @@ public class OrderService implements IOrderService {
     }
 
     /**
+     * 后台-查询订单列表
+     *
+     * @param orderNo
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public ServerResponse<PageInfo> manageSearch(Long orderNo, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+
+        List<Order> orderList = orderMapper.selectByCondition(orderNo);
+        if (CollectionUtils.isEmpty(orderList)) {
+            return ServerResponse.createByErrorMessage("查询失败");
+        }
+        List<OrderVo> orderVoList = assembleOrderVoList(null, orderList);
+
+        PageInfo pageInfo = new PageInfo(orderList);
+        pageInfo.setList(orderVoList);
+
+        return ServerResponse.createBySuccess(pageInfo);
+    }
+
+    /**
      * 封闭订单Vo列表
      *
      * @param userId

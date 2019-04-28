@@ -221,4 +221,16 @@
         where order_no = #{orderNo}
     </select>
 
+    <select id="selectByCondition" parameterType="long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mmall_order
+        <where>
+            <if test="orderNo != null">
+                order_no = #{orderNo}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
 </mapper>

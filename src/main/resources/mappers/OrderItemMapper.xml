@@ -181,7 +181,10 @@
         select
         <include refid="Base_Column_List"/>
         from mmall_order_item
-        where user_id = #{userId} and order_no = #{orderNo}
+        where order_no = #{orderNo}
+        <if test="userId != null">
+            user_id = #{userId}
+        </if>
     </select>
 
     <select id="selectByOrderNo" parameterType="long" resultMap="BaseResultMap">
