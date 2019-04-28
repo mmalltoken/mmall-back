@@ -1,5 +1,7 @@
 package com.mmall.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
@@ -195,6 +197,49 @@ public class OrderService implements IOrderService {
         OrderVo orderVo = assembleOrderVo(order, orderItemList);
 
         return ServerResponse.createBySuccess(orderVo);
+    }
+
+    /**
+     * 订单列表
+     *
+     * @param userId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public ServerResponse<PageInfo> list(Integer userId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+
+        List<Order> orderList = orderMapper.selectByUserId(userId);
+        if (CollectionUtils.isEmpty(orderList)) {
+            return ServerResponse.createByErrorMessage("查询失败");
+        }
+        List<OrderVo> orderVoList = assembleOrderVoList(userId, orderList);
+
+        PageInfo pageInfo = new PageInfo(orderList);
+        pageInfo.setList(orderVoList);
+
+        return ServerResponse.createBySuccess(pageInfo);
+    }
+
+    /**
+     * 封闭订单Vo列表
+     *
+     * @param userId
+     * @param orderList
+     * @return
+     */
+    private List<OrderVo> assembleOrderVoList(Integer userId, List<Order> orderList) {
+        List<OrderVo> orderVoList = Lists.newArrayList();
+        // 查询订单明细
+        for (Order order : orderList) {
+            List<OrderItem> orderItemList = orderItemMapper.selectByOrderNoAndUserId(order.getOrderNo(), userId);
+            OrderVo orderVo = assembleOrderVo(order, orderItemList);
+            orderVoList.add(orderVo);
+        }
+
+        return orderVoList;
     }
 
     /**
