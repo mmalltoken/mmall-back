@@ -1,13 +1,20 @@
 package com.mmall.controller.portal;
 
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.demo.trade.config.Configs;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import com.mmall.common.Const;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
+import com.mmall.pojo.Order;
 import com.mmall.pojo.User;
 import com.mmall.service.IOrderService;
 import com.mmall.vo.CartCheckedProductVo;
 import com.mmall.vo.OrderVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +22,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.math.BigDecimal;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 描述：订单模块
@@ -25,6 +36,8 @@ import javax.servlet.http.HttpSession;
 @Controller
 @RequestMapping("/order/")
 public class OrderController {
+
+    private static Logger log = LoggerFactory.getLogger(OrderController.class);
 
     @Autowired
     private IOrderService orderService;
@@ -119,5 +132,129 @@ public class OrderController {
         }
 
         return orderService.list(user.getId(), pageNum, pageSize);
+    }
+
+    /**
+     * 订单支付
+     *
+     * @param orderNo
+     * @param request
+     * @param session
+     * @return
+     */
+    @RequestMapping("pay.do")
+    @ResponseBody
+    public ServerResponse pay(Long orderNo, HttpServletRequest request, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        // 本地存放图片的临时目录
+        String path = request.getSession().getServletContext().getRealPath("upload");
+
+        return orderService.orderPay(orderNo, user.getId(), path);
+    }
+
+    /**
+     * 支付宝回调接口
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping("alipay_callback.do")
+    @ResponseBody
+    public Object alipayCallback(HttpServletRequest request) {
+        Map<String, String> params = Maps.newHashMap();
+
+        // 获取支付宝请求参数
+        Map<String, String[]> requestParams = request.getParameterMap();
+        // 解析请求参数
+        for (Iterator<String> iter = requestParams.keySet().iterator(); iter.hasNext(); ) {
+            String name = iter.next();
+            String[] valueArray = requestParams.get(name);
+            String value = "";
+            for (int i = 0; i < valueArray.length; i++) {
+                value = (i == (valueArray.length - 1)) ? valueArray[i] : valueArray[i] + ",";
+            }
+            params.put(name, value);
+        }
+        log.info("支付宝回调,sign:{},trade_status:{},参数:{}", params.get("sign"), params.get("trade_status"),
+                params.toString());
+
+        // 支付宝验证回调
+        params.remove("sign_type");
+        try {
+            boolean rsaCheckV2Result = AlipaySignature.rsaCheckV2(params, Configs.getAlipayPublicKey(),
+                    "UTF-8", Configs.getSignType());
+
+            if (!rsaCheckV2Result) {
+                return ServerResponse.createBySuccessMessage("非法请求，验证不通过，再恶意请求立刻通知网警");
+            }
+        } catch (AlipayApiException e) {
+            log.error("支付宝验证回调异常", e);
+        }
+
+        // 回调参数验证
+        checkCallbackParams(params);
+
+        // 修改订单状态为已支付状态
+        ServerResponse response = orderService.aliCallback(params);
+        if (response.isSuccess()) {
+            return Const.AlipayCallback.TRADE_SUCCESS;
+        }
+
+        return Const.AlipayCallback.TRADE_FINISHED;
+    }
+
+    /**
+     * 回调参数验证
+     *
+     * @param params
+     */
+    private void checkCallbackParams(Map<String, String> params) {
+        // 验证订单号
+        Long orderNo = Long.parseLong(params.get("out_trade_no"));
+        ServerResponse<Order> response = orderService.getOrderDetail(orderNo);
+        if (!response.isSuccess())
+            throw new RuntimeException("订单号错误");
+
+        Order order = response.getData();
+        // 验证金额
+        BigDecimal totalAmount = new BigDecimal(params.get("total_amount"));
+        if (order.getPayment().compareTo(totalAmount) != 0) {
+            throw new RuntimeException("订单支付金额错误");
+        }
+
+        // 验证AppId
+        String appId = params.get("app_id");
+        if (!Configs.getAppid().equals(appId)) {
+            throw new RuntimeException("AppId不一致");
+        }
+
+    }
+
+    /**
+     * 查询订单状态
+     *
+     * @param orderNo
+     * @param session
+     * @return
+     */
+    @RequestMapping("query_order_pay_status.do")
+    @ResponseBody
+    public ServerResponse<Boolean> queryOrderPayStatus(Long orderNo, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+        }
+
+        ServerResponse response = orderService.queryOrderPayStatus(user.getId(), orderNo);
+
+        if (response.isSuccess()) {
+            return ServerResponse.createBySuccess(true);
+        }
+
+        return ServerResponse.createBySuccess(false);
     }
 }

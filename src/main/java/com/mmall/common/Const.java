@@ -74,6 +74,7 @@ public class Const {
         }
     }
 
+    // 支付类型
     public enum PaymentTypeEnum {
         ONLINE_PAY(1, "在线支付");
 
@@ -104,6 +105,14 @@ public class Const {
 
     }
 
+    // 支付宝回调响应状态
+    public interface AlipayCallback {
+        String TRADE_SUCCESS = "TRADE_SUCCESS";
+        String WAIT_BUYER_PAY = "WAIT_BUYER_PAY";
+        String TRADE_CLOSED = "TRADE_CLOSED";
+        String TRADE_FINISHED = "TRADE_FINISHED";
+    }
+
     // 购物车
     public interface Cart {
         int CHECKED = 1;     // 商品勾选
@@ -111,5 +120,29 @@ public class Const {
 
         String LIMIT_NUM_SUCCESS = "LIMIT_NUM_SUCCESS";   // 限制成功
         String LIMIT_NUM_FAIL = "LIMIT_NUM_FAIL";         // 限制失败
+    }
+
+    // 支付平台类型
+    public enum PayPlatformEnum {
+
+        ALIPAY(1, "支付宝"),
+        WECHAT(2, "微信");
+
+        private int code;
+        private String desc;
+
+        PayPlatformEnum(int code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
     }
 }

@@ -183,7 +183,7 @@
         from mmall_order_item
         where order_no = #{orderNo}
         <if test="userId != null">
-            user_id = #{userId}
+            and user_id = #{userId}
         </if>
     </select>
 
