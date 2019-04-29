@@ -274,6 +274,42 @@
       </plugin>
     </plugins>
 
+    <!-- maven环境隔离 -->
+    <resources>
+      <resource>
+        <directory>src/main/resources.${deploy.test}</directory>
+        <excludes>
+          <exclude>*.jsp</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
   </build>
+
+  <profiles>
+    <profile>
+      <id>dev</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <deploy.test>dev</deploy.test>
+      </properties>
+    </profile>
+    <profile>
+      <id>beta</id>
+      <properties>
+        <deploy.test>beta</deploy.test>
+      </properties>
+    </profile>
+    <profile>
+      <id>prod</id>
+      <properties>
+        <deploy.test>prod</deploy.test>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>

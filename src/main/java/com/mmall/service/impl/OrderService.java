@@ -68,7 +68,7 @@ public class OrderService implements IOrderService {
 
     static {
         // Configs读取配置信息
-        Configs.init("alipayInfo.properties");
+        Configs.init("src/main/resources.dev/alipayInfo.properties");
         // 使用Configs提供的默认参数,tradeService可以使用单例或者为静态成员对象，不需要反复new
         tradeService = new AlipayTradeServiceImpl.ClientBuilder().build();
     }
