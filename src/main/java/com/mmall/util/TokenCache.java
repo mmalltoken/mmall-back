@@ -3,8 +3,7 @@ package com.mmall.util;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -14,9 +13,9 @@ import java.util.concurrent.TimeUnit;
  * 作者：NearJC
  * 时间：2019.4.24
  */
+@Slf4j
 public class TokenCache {
 
-    private static Logger log = LoggerFactory.getLogger(TokenCache.class);
     public static final String TOKEN_PREFIX = "token_";    // 前缀
     private static LoadingCache<String, String> localCache = CacheBuilder.newBuilder().
             initialCapacity(1000).maximumSize(10000).expireAfterAccess(12, TimeUnit.HOURS).

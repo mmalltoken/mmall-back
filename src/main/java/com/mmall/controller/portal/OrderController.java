@@ -13,8 +13,7 @@ import com.mmall.pojo.User;
 import com.mmall.service.IOrderService;
 import com.mmall.vo.CartCheckedProductVo;
 import com.mmall.vo.OrderVo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,9 +34,8 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/order/")
+@Slf4j
 public class OrderController {
-
-    private static Logger log = LoggerFactory.getLogger(OrderController.class);
 
     @Autowired
     private IOrderService orderService;

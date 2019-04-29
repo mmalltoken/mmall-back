@@ -1,9 +1,8 @@
 package com.mmall.util;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,9 +14,9 @@ import java.util.List;
  * 作者：NearJC
  * 时间：2019.4.27
  */
+@Slf4j
 public class FTPUtil {
 
-    private static Logger log = LoggerFactory.getLogger(FTPUtil.class);
     private String ip;
     private int port;
     private String username;

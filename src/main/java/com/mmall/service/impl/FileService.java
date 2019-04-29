@@ -3,8 +3,7 @@ package com.mmall.service.impl;
 import com.google.common.collect.Lists;
 import com.mmall.service.IFileService;
 import com.mmall.util.FTPUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,10 +17,16 @@ import java.util.UUID;
  * 时间：2019.4.26
  */
 @Service("fileService")
+@Slf4j
 public class FileService implements IFileService {
 
-    private static Logger log = LoggerFactory.getLogger(FileService.class);
-
+    /**
+     * 文件上传
+     *
+     * @param multipartFile
+     * @param path
+     * @return
+     */
     @Override
     public String upload(MultipartFile multipartFile, String path) {
         // 获取文件名称

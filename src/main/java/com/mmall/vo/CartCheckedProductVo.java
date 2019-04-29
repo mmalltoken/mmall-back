@@ -1,5 +1,8 @@
 package com.mmall.vo;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -8,33 +11,11 @@ import java.util.List;
  * 作者：NearJC
  * 时间：2019.4.27
  */
+@Getter
+@Setter
 public class CartCheckedProductVo {
 
     List<OrderItemVo> orderItemVoList;
     BigDecimal payment;
     String imageHost;
-
-    public List<OrderItemVo> getOrderItemVoList() {
-        return orderItemVoList;
-    }
-
-    public void setOrderItemVoList(List<OrderItemVo> orderItemVoList) {
-        this.orderItemVoList = orderItemVoList;
-    }
-
-    public BigDecimal getPayment() {
-        return payment;
-    }
-
-    public void setPayment(BigDecimal payment) {
-        this.payment = payment;
-    }
-
-    public String getImageHost() {
-        return imageHost;
-    }
-
-    public void setImageHost(String imageHost) {
-        this.imageHost = imageHost;
-    }
 }

@@ -1,7 +1,6 @@
 package com.mmall.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,9 +11,9 @@ import java.util.Properties;
  * 作者：NearJC
  * 时间：2019.4.26
  */
+@Slf4j
 public class PropertiesUtil {
 
-    private static Logger log = LoggerFactory.getLogger(PropertiesUtil.class);
     private static Properties props;
 
     static {
