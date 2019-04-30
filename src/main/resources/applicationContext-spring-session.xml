@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="order" value="2"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:mmall.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--配置了session基本属性-->
+    <bean id="httpSessionConfiguration" class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
+        <!--session有效期-->
+        <property name="maxInactiveIntervalInSeconds" value="1800"/>
+    </bean>
+
+    <!--配置连接池的基本属性-->
+    <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${redis.max.total}"/>
+        <property name="maxIdle" value="${redis.max.idle}"/>
+        <property name="minIdle" value="${redis.min.idle}"/>
+        <property name="testOnReturn" value="${redis.test.return}"/>
+        <property name="testOnBorrow" value="${redis.test.borrow}"/>
+        <property name="blockWhenExhausted" value="${redis.block.exhausted}"/>
+    </bean>
+
+    <!--加载JedisConnectionFactory.class：配置redis连接相关属性-->
+    <bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <!--服务器IP-->
+        <property name="hostName" value="${redis.ip}"/>
+        <!--端口号-->
+        <property name="port" value="${redis.port}"/>
+        <!--连接池-->
+        <property name="poolConfig" ref="poolConfig"/>
+    </bean>
+
+    <!--加载DefaultCookieSerializer.class：配置Cookie相关属性-->
+    <bean id="defaultCookieSerializer" class="org.springframework.session.web.http.DefaultCookieSerializer">
+        <property name="cookieName" value="SESSION_NAME"/>
+        <property name="useHttpOnlyCookie" value="true"/>
+        <property name="cookiePath" value="/"/>
+        <property name="cookieMaxAge" value="31536000"/>
+    </bean>
+
+</beans>
