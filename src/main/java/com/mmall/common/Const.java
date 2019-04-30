@@ -145,4 +145,12 @@ public class Const {
         }
 
     }
+
+    // redis存储
+    public interface RedisCache {
+        // 用户信息有效时间
+        int REDIS_SESSION_EXPIRE = 60 * 60 * 24 * 7;
+        // 忘记密码token前缀
+        String TOKEN_PREFIX = "token_";
+    }
 }

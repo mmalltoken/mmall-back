@@ -6,8 +6,10 @@ import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import com.mmall.util.MD5Util;
+import com.mmall.util.RedisUtil;
 import com.mmall.util.TokenCache;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.SerializationConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -230,7 +232,8 @@ public class UserServiceImpl implements IUserService {
         if (resultCount > 0) {
             // 生成Token，修改密码时需要带回来
             String forgetToken = UUID.randomUUID().toString();
-            TokenCache.set(TokenCache.TOKEN_PREFIX + username, forgetToken);
+            // 保存到redis
+            RedisUtil.setex(Const.RedisCache.TOKEN_PREFIX + username, forgetToken, 60 * 60 * 12);
 
             return ServerResponse.createBySuccess(forgetToken);
         }
@@ -270,8 +273,8 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createByErrorMessage("用户不存在");
         }
 
-        // 获取本地保存的token值
-        String localToken = TokenCache.get(TokenCache.TOKEN_PREFIX + username);
+        // 获取保存的token值
+        String localToken = RedisUtil.get(Const.RedisCache.TOKEN_PREFIX + username);
         if (StringUtils.isBlank(localToken)) {
             return ServerResponse.createByErrorMessage("token无效或者过期");
         }

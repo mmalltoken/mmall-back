@@ -1,8 +1,5 @@
 package com.mmall.controller.portal;
 
-import com.github.pagehelper.PageInfo;
-import com.mmall.common.Const;
-import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.Shipping;
 import com.mmall.pojo.User;
@@ -14,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 描述：收货地址管理
@@ -27,21 +24,25 @@ public class ShippingController {
 
     @Autowired
     private IShippingService shippingService;
+    @Autowired
+    private UserController userController;
 
     /**
      * 添加收货地址
      *
      * @param shipping
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping(value = "add.do", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse add(Shipping shipping, HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse add(Shipping shipping, HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         return shippingService.add(user.getId(), shipping);
     }
@@ -50,16 +51,18 @@ public class ShippingController {
      * 删除收货地址
      *
      * @param shippingId
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping(value = "delete.do", method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse delete(Integer shippingId, HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse delete(Integer shippingId, HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         return shippingService.delete(user.getId(), shippingId);
     }
@@ -68,16 +71,18 @@ public class ShippingController {
      * 更新收货地址
      *
      * @param shipping
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping(value = "update.do", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse update(Shipping shipping, HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse update(Shipping shipping, HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         return shippingService.update(user.getId(), shipping);
     }
@@ -86,16 +91,18 @@ public class ShippingController {
      * 获取收获地址详情
      *
      * @param shippingId
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping(value = "detail.do", method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse<Shipping> detail(Integer shippingId, HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse detail(Integer shippingId, HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         return shippingService.detail(user.getId(), shippingId);
     }
@@ -103,20 +110,22 @@ public class ShippingController {
     /**
      * 分页查询收货地址列表
      *
-     * @param session
      * @param pageNum
      * @param pageSize
+     * @param request
      * @return
      */
     @RequestMapping(value = "list.do", method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse<PageInfo> list(HttpSession session, @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
-                                         @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse list(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+                               @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+                               HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         return shippingService.list(user.getId(), pageNum, pageSize);
     }

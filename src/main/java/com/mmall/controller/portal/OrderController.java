@@ -3,16 +3,12 @@ package com.mmall.controller.portal;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.demo.trade.config.Configs;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import com.mmall.common.Const;
-import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.Order;
 import com.mmall.pojo.User;
 import com.mmall.service.IOrderService;
-import com.mmall.vo.CartCheckedProductVo;
-import com.mmall.vo.OrderVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.Map;
@@ -39,21 +34,25 @@ public class OrderController {
 
     @Autowired
     private IOrderService orderService;
+    @Autowired
+    private UserController userController;
 
     /**
      * 创建订单
      *
      * @param shippingId
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping(value = "create.do", method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse<OrderVo> create(Integer shippingId, HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse create(Integer shippingId, HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         return orderService.createOrder(shippingId, user.getId());
     }
@@ -62,16 +61,18 @@ public class OrderController {
      * 取消订单
      *
      * @param orderNo
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping("cancel.do")
     @ResponseBody
-    public ServerResponse<String> cancel(Long orderNo, HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse cancel(Long orderNo, HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         return orderService.cancelOrder(orderNo, user.getId());
     }
@@ -79,16 +80,18 @@ public class OrderController {
     /**
      * 获取购物车中已勾选的商品信息
      *
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping("get_cart_checked_product.do")
     @ResponseBody
-    public ServerResponse<CartCheckedProductVo> getCartCheckedProduct(HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse getCartCheckedProduct(HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         return orderService.getCartCheckedProduct(user.getId());
     }
@@ -97,16 +100,18 @@ public class OrderController {
      * 获取订单详情
      *
      * @param orderNo
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping("detail.do")
     @ResponseBody
-    public ServerResponse<OrderVo> detail(Long orderNo, HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse detail(Long orderNo, HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         return orderService.getOrderDetail(orderNo, user.getId());
     }
@@ -116,20 +121,22 @@ public class OrderController {
      *
      * @param pageNum
      * @param pageSize
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping("list.do")
     @ResponseBody
-    public ServerResponse<PageInfo> list(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
-                                         @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                                         HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse list(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+                               @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+                               HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
-        return orderService.list(user.getId(), pageNum, pageSize);
+        return orderService.orderList(user.getId(), pageNum, pageSize);
     }
 
     /**
@@ -137,16 +144,18 @@ public class OrderController {
      *
      * @param orderNo
      * @param request
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping("pay.do")
     @ResponseBody
-    public ServerResponse pay(Long orderNo, HttpServletRequest request, HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse pay(Long orderNo, HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         // 本地存放图片的临时目录
         String path = request.getSession().getServletContext().getRealPath("upload");
@@ -236,16 +245,18 @@ public class OrderController {
      * 查询订单状态
      *
      * @param orderNo
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping("query_order_pay_status.do")
     @ResponseBody
-    public ServerResponse<Boolean> queryOrderPayStatus(Long orderNo, HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    public ServerResponse queryOrderPayStatus(Long orderNo, HttpServletRequest request) {
+        // 检测用户是否登录
+        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
+        if (!checkLoginResponse.isSuccess()) {
+            return checkLoginResponse;
         }
+        User user = checkLoginResponse.getData();
 
         ServerResponse response = orderService.queryOrderPayStatus(user.getId(), orderNo);
 

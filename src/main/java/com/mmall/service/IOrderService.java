@@ -20,7 +20,7 @@ public interface IOrderService {
 
     ServerResponse<Order> getOrderDetail(Long orderNo);
 
-    ServerResponse<PageInfo> list(Integer userId, int pageNum, int pageSize);
+    ServerResponse<PageInfo> orderList(Integer userId, int pageNum, int pageSize);
 
     ServerResponse orderPay(Long orderNo, Integer userId, String path);
 

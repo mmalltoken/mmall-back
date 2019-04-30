@@ -255,7 +255,7 @@ public class OrderService implements IOrderService {
      * @return
      */
     @Override
-    public ServerResponse<PageInfo> list(Integer userId, int pageNum, int pageSize) {
+    public ServerResponse<PageInfo> orderList(Integer userId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
         List<Order> orderList = orderMapper.selectByUserId(userId);
