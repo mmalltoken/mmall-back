@@ -9,6 +9,9 @@ import com.mmall.common.ServerResponse;
 import com.mmall.pojo.Order;
 import com.mmall.pojo.User;
 import com.mmall.service.IOrderService;
+import com.mmall.util.CookieUtil;
+import com.mmall.util.JsonUtil;
+import com.mmall.util.RedisShardedUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,8 +37,6 @@ public class OrderController {
 
     @Autowired
     private IOrderService orderService;
-    @Autowired
-    private UserController userController;
 
     /**
      * 创建订单
@@ -47,12 +48,8 @@ public class OrderController {
     @RequestMapping(value = "create.do", method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse create(Integer shippingId, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return orderService.createOrder(shippingId, user.getId());
     }
@@ -67,12 +64,8 @@ public class OrderController {
     @RequestMapping("cancel.do")
     @ResponseBody
     public ServerResponse cancel(Long orderNo, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return orderService.cancelOrder(orderNo, user.getId());
     }
@@ -86,12 +79,8 @@ public class OrderController {
     @RequestMapping("get_cart_checked_product.do")
     @ResponseBody
     public ServerResponse getCartCheckedProduct(HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return orderService.getCartCheckedProduct(user.getId());
     }
@@ -106,12 +95,8 @@ public class OrderController {
     @RequestMapping("detail.do")
     @ResponseBody
     public ServerResponse detail(Long orderNo, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return orderService.getOrderDetail(orderNo, user.getId());
     }
@@ -129,12 +114,8 @@ public class OrderController {
     public ServerResponse list(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
                                @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
                                HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return orderService.orderList(user.getId(), pageNum, pageSize);
     }
@@ -150,12 +131,8 @@ public class OrderController {
     @RequestMapping("pay.do")
     @ResponseBody
     public ServerResponse pay(Long orderNo, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         // 本地存放图片的临时目录
         String path = request.getSession().getServletContext().getRealPath("upload");
@@ -251,12 +228,8 @@ public class OrderController {
     @RequestMapping("query_order_pay_status.do")
     @ResponseBody
     public ServerResponse queryOrderPayStatus(Long orderNo, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         ServerResponse response = orderService.queryOrderPayStatus(user.getId(), orderNo);
 

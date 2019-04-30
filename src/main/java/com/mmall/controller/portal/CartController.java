@@ -4,6 +4,9 @@ import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.ICartService;
+import com.mmall.util.CookieUtil;
+import com.mmall.util.JsonUtil;
+import com.mmall.util.RedisShardedUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +25,6 @@ public class CartController {
 
     @Autowired
     private ICartService cartService;
-    @Autowired
-    private UserController userController;
 
     /**
      * 将商品添加到购物车
@@ -36,12 +37,8 @@ public class CartController {
     @RequestMapping("add.do")
     @ResponseBody
     public ServerResponse add(Integer productId, Integer count, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return cartService.addCartProduct(productId, user.getId(), count);
     }
@@ -57,12 +54,8 @@ public class CartController {
     @RequestMapping("update.do")
     @ResponseBody
     public ServerResponse update(Integer count, Integer productId, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return cartService.updateCartProduct(productId, user.getId(), count);
     }
@@ -77,12 +70,8 @@ public class CartController {
     @RequestMapping("delete.do")
     @ResponseBody
     public ServerResponse delete(String productIds, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return cartService.deleteCartProduct(productIds, user.getId());
     }
@@ -96,12 +85,8 @@ public class CartController {
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse list(HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return cartService.list(user.getId());
     }
@@ -115,12 +100,8 @@ public class CartController {
     @RequestMapping("check_all.do")
     @ResponseBody
     public ServerResponse checkAll(HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return cartService.checkOrUnCheck(user.getId(), null, Const.Cart.CHECKED);
     }
@@ -134,12 +115,8 @@ public class CartController {
     @RequestMapping("uncheck_all.do")
     @ResponseBody
     public ServerResponse uncheckAll(HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return cartService.checkOrUnCheck(user.getId(), null, Const.Cart.UN_CHECKED);
     }
@@ -154,12 +131,8 @@ public class CartController {
     @RequestMapping("check.do")
     @ResponseBody
     public ServerResponse check(Integer productId, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return cartService.checkOrUnCheck(user.getId(), productId, Const.Cart.CHECKED);
     }
@@ -174,12 +147,8 @@ public class CartController {
     @RequestMapping("uncheck.do")
     @ResponseBody
     public ServerResponse uncheck(Integer productId, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return cartService.checkOrUnCheck(user.getId(), productId, Const.Cart.UN_CHECKED);
     }
@@ -193,12 +162,11 @@ public class CartController {
     @RequestMapping("get_cart_product_count.do")
     @ResponseBody
     public ServerResponse<Integer> getCartProductCount(HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = userController.checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
+        if(user == null){
             return ServerResponse.createBySuccess(0);
         }
-        User user = checkLoginResponse.getData();
 
         return cartService.getCartProductCount(user.getId());
     }

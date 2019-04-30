@@ -59,11 +59,11 @@ public class RedisShardedPool {
 
         // 添加连接节点
         JedisShardInfo shardInfo1 = new JedisShardInfo(redisIp1, redisPort1);
-        JedisShardInfo shardInfo2 = new JedisShardInfo(redisIp2, redisPort2);
+        //JedisShardInfo shardInfo2 = new JedisShardInfo(redisIp2, redisPort2);
 
-        List<JedisShardInfo> shardInfoList = new ArrayList<>(2);
+        List<JedisShardInfo> shardInfoList = new ArrayList<>();
         shardInfoList.add(shardInfo1);
-        shardInfoList.add(shardInfo2);
+        //shardInfoList.add(shardInfo2);
 
         // 创建分布式连接池对象
         shardedJedisPool = new ShardedJedisPool(config, shardInfoList, Hashing.MURMUR_HASH, Sharded.DEFAULT_KEY_TAG_PATTERN);

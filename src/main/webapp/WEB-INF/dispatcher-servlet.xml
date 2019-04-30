@@ -20,6 +20,22 @@
             <mvc:exclude-mapping path="/manage/user/login.do"/>
             <bean class="com.mmall.controller.backend.common.interceptor.AuthorityInterceptor"/>
         </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/manage/**"/>
+            <mvc:exclude-mapping path="/user/login.do"/>
+            <mvc:exclude-mapping path="/user/logout.do"/>
+            <mvc:exclude-mapping path="/user/register.do"/>
+            <mvc:exclude-mapping path="/user/check_valid.do"/>
+            <mvc:exclude-mapping path="/user/forget_get_question.do"/>
+            <mvc:exclude-mapping path="/user/forget_check_answer.do"/>
+            <mvc:exclude-mapping path="/user/forget_reset_password.do"/>
+            <mvc:exclude-mapping path="/product/detail.do"/>
+            <mvc:exclude-mapping path="/product/search.do"/>
+            <mvc:exclude-mapping path="/cart/get_cart_product_count.do"/>
+            <mvc:exclude-mapping path="/order/alipay_callback.do"/>
+            <bean class="com.mmall.controller.portal.common.interceptor.AuthorityInterceptor"/>
+        </mvc:interceptor>
     </mvc:interceptors>
 
     <mvc:annotation-driven>

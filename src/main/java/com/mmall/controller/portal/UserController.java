@@ -1,7 +1,6 @@
 package com.mmall.controller.portal;
 
 import com.mmall.common.Const;
-import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
@@ -149,12 +148,8 @@ public class UserController {
     @RequestMapping(value = "reset_password.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse resetPassword(String oldPassword, String newPassword, HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
 
         return userService.resetPassword(oldPassword, newPassword, user);
@@ -170,11 +165,8 @@ public class UserController {
     @RequestMapping(value = "update_information.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> updateInformation(User user, HttpServletRequest request, HttpSession session) {
-        ServerResponse<User> checkLoginResponse = checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User currentUser = checkLoginResponse.getData();
+        // 获取用户信息
+        User currentUser = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         user.setId(currentUser.getId());  // 防止越权，从登录的session中获取
         user.setUsername(currentUser.getUsername());  // 因为username不能被更新
@@ -196,33 +188,10 @@ public class UserController {
     @RequestMapping(value = "get_information.do", method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<User> getInformation(HttpServletRequest request) {
-        // 检测用户是否登录
-        ServerResponse<User> checkLoginResponse = checkLogin(request);
-        if (!checkLoginResponse.isSuccess()) {
-            return checkLoginResponse;
-        }
-        User user = checkLoginResponse.getData();
+        // 获取用户信息
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(CookieUtil.readLoginToken(request)),User.class);
 
         return userService.getInformation(user.getId());
-    }
-
-    /**
-     * 检测用户是否登录
-     *
-     * @param request
-     * @return
-     */
-    public ServerResponse<User> checkLogin(HttpServletRequest request) {
-        // 从cookie中获取loginToken
-        String loginToken = CookieUtil.readLoginToken(request);
-        // 从redis中获取用户信息
-        User user = JsonUtil.string2Obj(RedisShardedUtil.get(loginToken), User.class);
-
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
-        }
-
-        return ServerResponse.createBySuccess(user);
     }
 
 }
