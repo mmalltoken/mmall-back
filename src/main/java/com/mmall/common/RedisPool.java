@@ -15,9 +15,9 @@ public class RedisPool {
     private static JedisPool pool;
 
     // IP地址
-    private static String redisIp = PropertiesUtil.getProperty("redis.ip", "127.0.0.1");
+    private static String redisIp = PropertiesUtil.getProperty("redis1.ip", "127.0.0.1");
     // 端口号
-    private static int redisPort = Integer.valueOf(PropertiesUtil.getProperty("redis.port", "6379"));
+    private static int redisPort = Integer.valueOf(PropertiesUtil.getProperty("redis1.port", "6379"));
     // 最大连接数
     private static int maxTotal = Integer.valueOf(PropertiesUtil.getProperty("redis.max.total", "20"));
     // 最大空闲连接数

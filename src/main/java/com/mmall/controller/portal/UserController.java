@@ -7,7 +7,7 @@ import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import com.mmall.util.CookieUtil;
 import com.mmall.util.JsonUtil;
-import com.mmall.util.RedisUtil;
+import com.mmall.util.RedisShardedUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,7 +49,7 @@ public class UserController {
             CookieUtil.writeLoginToken(httpServletResponse, session.getId());
             // 将用户信息存储到redis中
             User user = response.getData();
-            RedisUtil.setex(session.getId(), JsonUtil.obj2String(user), Const.RedisCache.REDIS_SESSION_EXPIRE);
+            RedisShardedUtil.setex(session.getId(), JsonUtil.obj2String(user), Const.RedisCache.REDIS_SESSION_EXPIRE);
         }
 
         return response;
@@ -68,7 +68,7 @@ public class UserController {
         CookieUtil.delLoginToken(request, response);
         // 删除redis中的用户信息
         String loginToken = CookieUtil.readLoginToken(request);
-        RedisUtil.del(loginToken);
+        RedisShardedUtil.del(loginToken);
 
         return ServerResponse.createBySuccess();
     }
@@ -182,7 +182,7 @@ public class UserController {
         ServerResponse<User> response = userService.updateInformation(user);
         if (response.isSuccess()) {
             // 将用户信息存储到redis中
-            RedisUtil.setex(session.getId(), JsonUtil.obj2String(user), Const.RedisCache.REDIS_SESSION_EXPIRE);
+            RedisShardedUtil.setex(session.getId(), JsonUtil.obj2String(user), Const.RedisCache.REDIS_SESSION_EXPIRE);
         }
 
         return response;
@@ -216,7 +216,7 @@ public class UserController {
         // 从cookie中获取loginToken
         String loginToken = CookieUtil.readLoginToken(request);
         // 从redis中获取用户信息
-        User user = JsonUtil.string2Obj(RedisUtil.get(loginToken), User.class);
+        User user = JsonUtil.string2Obj(RedisShardedUtil.get(loginToken), User.class);
 
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");

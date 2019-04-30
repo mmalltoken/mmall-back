@@ -24,7 +24,7 @@ public class RedisUtil {
 
         try {
             jedis = RedisPool.getResource();
-            jedis.expire(key, exTime);
+            result = jedis.expire(key, exTime);
         } catch (Exception e) {
             log.error("设置有效时间异常", e);
             RedisPool.returnBrokenResource(jedis);
