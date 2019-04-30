@@ -5,6 +5,16 @@
          id="WebApp_ID" version="2.5">
     <display-name>Archetype Created Web Application</display-name>
 
+    <!--servlet代理过滤器（在这用来重构getSession()方法）-->
+    <filter>
+        <filter-name>springSessionRepositoryFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>springSessionRepositoryFilter</filter-name>
+        <url-pattern>*.do</url-pattern>
+    </filter-mapping>
+
     <!--POST请求乱码过滤器-->
     <filter>
         <filter-name>characterEncodingFilter</filter-name>
