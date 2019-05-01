@@ -238,6 +238,20 @@
       <version>2.9.0</version>
     </dependency>
 
+    <!--redisson-->
+    <dependency>
+      <groupId>org.redisson</groupId>
+      <artifactId>redisson</artifactId>
+      <version>2.9.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-avro</artifactId>
+      <version>2.9.0</version>
+    </dependency>
+
+
     <!--lombok-->
     <dependency>
       <groupId>org.projectlombok</groupId>

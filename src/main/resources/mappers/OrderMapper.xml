@@ -233,4 +233,17 @@
         order by create_time desc
     </select>
 
+    <select id="selectByStatusAndCreateTime" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mmall_order
+        where status = #{status} and create_time &lt;= #{date}
+        order by create_time desc
+    </select>
+
+    <update id="closeOrderByPrimaryKey" parameterType="int">
+        update mmall_order set stauts = 0,update_time = now()
+        where id = #{id}
+    </update>
+
 </mapper>

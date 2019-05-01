@@ -34,4 +34,5 @@ public interface IOrderService {
 
     ServerResponse<String> manageDeliverGoods(Long orderNo);
 
+    void closeOrder(int hour);
 }
