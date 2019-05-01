@@ -569,16 +569,16 @@ public class OrderService implements IOrderService {
                 // 获取订单详情
                 List<OrderItem> orderItemList = orderItemMapper.selectByOrderNoAndUserId(order.getOrderNo(), order.getUserId());
                 for (OrderItem orderItem : orderItemList) {
-                    // 获取商品信息
-                    Product product = productMapper.selectByPrimaryKey(orderItem.getProductId());
                     // 获取库存数量
-                    Integer stock = product.getStock();
+                    Integer stock = productMapper.selectStockByPrimaryKey(orderItem.getProductId());
                     // 防止订单中有已删除的商品
                     if (stock == null) {
                         continue;
                     }
 
                     // 更新商品库存
+                    Product product = new Product();
+                    product.setId(orderItem.getProductId());
                     product.setStock(stock + orderItem.getQuantity());
                     productMapper.updateByPrimaryKeySelective(product);
                 }

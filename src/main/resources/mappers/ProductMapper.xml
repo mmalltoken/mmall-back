@@ -205,4 +205,10 @@
             </foreach>
         </if>
     </select>
+
+    <select id="selectStockByPrimaryKey" parameterType="int" resultType="int">
+        select stock from mmall_product
+        where id = #{id}
+        for update
+    </select>
 </mapper>
