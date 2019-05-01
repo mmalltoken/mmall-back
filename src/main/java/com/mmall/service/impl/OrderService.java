@@ -30,6 +30,7 @@ import com.mmall.vo.ShippingVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -549,6 +550,44 @@ public class OrderService implements IOrderService {
         }
 
         return ServerResponse.createByErrorMessage("发货失败");
+    }
+
+    /**
+     * 定时关闭订单
+     *
+     * @param hour
+     */
+    @Override
+    public void closeOrder(int hour) {
+        Date closeDate = DateUtils.addHours(new Date(), -hour);
+
+        // 查询hour小时之前未支付的订单
+        List<Order> orderList = orderMapper.selectByStatusAndCreateTime(Const.OrderStatusEnum.NO_PAY.getCode(), closeDate);
+
+        if (CollectionUtils.isNotEmpty(orderList)) {
+            for (Order order : orderList) {
+                // 获取订单详情
+                List<OrderItem> orderItemList = orderItemMapper.selectByOrderNoAndUserId(order.getOrderNo(), order.getUserId());
+                for (OrderItem orderItem : orderItemList) {
+                    // 获取商品信息
+                    Product product = productMapper.selectByPrimaryKey(orderItem.getProductId());
+                    // 获取库存数量
+                    Integer stock = product.getStock();
+                    // 防止订单中有已删除的商品
+                    if (stock == null) {
+                        continue;
+                    }
+
+                    // 更新商品库存
+                    product.setStock(stock + orderItem.getQuantity());
+                    productMapper.updateByPrimaryKeySelective(product);
+                }
+
+                // 修改订单状态为关闭
+                orderMapper.closeOrderByOrderId(order.getId());
+                log.info("关闭订单：{}", order.getOrderNo());
+            }
+        }
     }
 
 

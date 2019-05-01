@@ -127,6 +127,52 @@ public class RedisShardedUtil {
         return value;
     }
 
+    /**
+     * 没有数据时才设置
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public static Long setnx(String key, String value) {
+        ShardedJedis jedis = null;
+        Long result = null;
+
+        try {
+            jedis = RedisShardedPool.getResource();
+            result = jedis.setnx(key, value);
+            RedisShardedPool.returnResource(jedis);
+        } catch (Exception e) {
+            log.error("删除数据异常", e);
+            RedisShardedPool.returnBrokenResource(jedis);
+        }
+
+        return result;
+    }
+
+    /**
+     * 设置新值数据并返回旧数据
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public static String getSet(String key, String value) {
+        ShardedJedis jedis = null;
+        String result = null;
+
+        try {
+            jedis = RedisShardedPool.getResource();
+            result = jedis.getSet(key, value);
+            RedisShardedPool.returnResource(jedis);
+        } catch (Exception e) {
+            log.error("删除数据异常", e);
+            RedisShardedPool.returnBrokenResource(jedis);
+        }
+
+        return result;
+    }
+
     public static void main(String[] args) {
         for (int i = 0; i < 10; i++) {
             RedisShardedUtil.setex("key" + i, "key" + i, Const.RedisCache.REDIS_SESSION_EXPIRE);

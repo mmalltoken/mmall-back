@@ -164,7 +164,7 @@ public class ProductService implements IProductService {
         return ServerResponse.createBySuccess(pageInfo);
     }
 
-    /**
+    /**p
      * 获取商品信息
      *
      * @param productId
@@ -179,8 +179,12 @@ public class ProductService implements IProductService {
 
         // 查询
         Product product = productMapper.selectByPrimaryKey(productId);
-        if (product == null || product.getStatus() != Const.ProductStatusEnum.ON_SALE.getCode()) {
-            return ServerResponse.createByErrorMessage("产品不存在或已下架");
+        if (product == null) {
+            return ServerResponse.createByErrorMessage("产品不存在");
+        }
+
+        if(product.getStatus() != Const.ProductStatusEnum.ON_SALE.getCode()){
+            return ServerResponse.createByErrorMessage("产品已下架");
         }
 
         ProductDetailVo productDetailVo = assembleProductDetailVo(product);

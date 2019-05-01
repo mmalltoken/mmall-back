@@ -3,6 +3,7 @@ package com.mmall.dao;
 import com.mmall.pojo.Order;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface OrderMapper {
@@ -25,4 +26,8 @@ public interface OrderMapper {
     Order selectByOrderNo(Long orderNo);
 
     List<Order> selectByCondition(@Param("orderNo") Long orderNo);
+
+    List<Order> selectByStatusAndCreateTime(@Param("status") int status, @Param("date") Date closeDate);
+
+    void closeOrderByOrderId(Integer id);
 }

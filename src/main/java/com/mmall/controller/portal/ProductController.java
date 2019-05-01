@@ -54,6 +54,7 @@ public class ProductController {
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
 
-        return productService.portalSearchProduct(keyword,categoryId,orderBy,pageNum,pageSize);
+        return productService.portalSearchProduct(keyword, categoryId, orderBy, pageNum, pageSize);
     }
+
 }
